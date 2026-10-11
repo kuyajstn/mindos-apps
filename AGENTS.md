@@ -41,6 +41,14 @@ Der Schlüssel (`tr-konf`) gilt für beide, alles andere im Speicher trägt das 
   Listen verweigert es. Am Hub selbst wirft es: den aktiven Plan stellt nur der Mac um.
   **Schreiblogik geändert? Danach `node werkzeug/schreibtest.mjs`** (schnelle Haken, Funkloch, Mac hat inzwischen
   geändert, Anhängen, alte Einträge ohne id, echter Fehler). Läuft gegen ein nachgebautes GitHub, ohne Netz.
+- **Neuaufbau nach dem Schreiben wartet auf den Dialog (seit 11.10.):** `neuStarten` baut erst neu auf, wenn `APP.wartet()`
+  nein sagt (Küche: `#ml-prep-modal` offen), höchstens nach 1,6 s. Vorher riss der Neuaufbau den Dialog nach 60 ms weg,
+  die Meldung „… eingetragen“ war nie zu sehen. Eine App ohne `wartet` baut wie bisher nach 60 ms neu auf.
+- **Tastatur am iPhone (seit 11.10.):** Sie verkleinert nur den sichtbaren Ausschnitt, nicht die Seite. Ein Blatt, das unten
+  klebt, schrumpft beim Filtern von oben, und das Suchfeld rutscht hinter die Tastatur. `app.js` setzt deshalb `--vv-h`, `--vv-o`
+  und `html.tastatur`, die `mobil.css` setzt das Blatt damit fest (Küche: `#ml-prep-modal`). Solange ein Textfeld im Hub den Fokus
+  hat, behält `#hub` seine Höhe (Suche in der Seite, sonst springt das Scrollen). **Neues Blatt mit Suchfeld → dieselbe Regel
+  in dessen `mobil.css`.** Ohne iPhone nur nachzustellen: `html.tastatur` und `--vv-h:480px` von Hand setzen, dann tippen und messen.
 - **Prüfen ohne echte Daten:** `node werkzeug/testserver.mjs` liest aus dem Vault, Schreiben ist gesperrt.
   Schreibtests nur gegen eine Kopie: `SCHREIBEN=1 VAULT=/tmp/vault-kopie node werkzeug/testserver.mjs`,
   Funkloch dazu mit `OHNE_NETZ=1`. Bildschirmfoto in iPhone-Breite: `werkzeug/rahmen.html`

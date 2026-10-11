@@ -783,6 +783,7 @@ async function hubStarten() {
     const code = (dateien[HUB]?.text.match(/^```dataviewjs[^\n]*\n([\s\S]*?)^```\s*$/m) || [])[1];
     if (!code) { hubEl.innerHTML = `<div class="ta-fehler">${HUB_NAME} nicht gefunden.</div>`; return; }
     const root = document.createElement('div');
+    hubEl.style.minHeight = '';   // Sperre der Suche (s. tastatur) fällt mit dem alten Feld weg
     hubEl.replaceChildren(root);
     const { dv, app, require } = shim(root);
     try { await new AsyncFunction('dv', 'app', 'require', code)(dv, app, require); }
@@ -796,8 +797,39 @@ async function hubStarten() {
   }
 }
 // Wie Obsidian: Nach einem Schreibvorgang baut sich der Block kurz danach neu auf.
-// Der Abstand lässt den Hub erst seinen Dialog schließen und die Meldung setzen.
-const neuStarten = () => { clearTimeout(zeitplan); zeitplan = setTimeout(hubStarten, 60); };
+// Steht noch ein Dialog mit seiner Meldung offen („… eingetragen“), wartet der Neuaufbau, bis er
+// zu ist, höchstens 1,6 s (11.10.). Vorher riss er den Dialog nach 60 ms weg, die Meldung war nie
+// zu sehen, und das Eintragen wirkte wie ein Abbruch. Welcher Dialog zählt, sagt APP.wartet.
+const neuStarten = () => {
+  clearTimeout(zeitplan);
+  const bis = Date.now() + 1600;
+  const versuch = () => { if (APP.wartet?.() && Date.now() < bis) zeitplan = setTimeout(versuch, 100); else hubStarten(); };
+  zeitplan = setTimeout(versuch, 60);
+};
+
+// ── Tastatur am iPhone (11.10.) ─────────────────────────────────
+// Die Tastatur verkleinert nur den sichtbaren Ausschnitt, nicht die Seite. Zwei Folgen beim Suchen:
+// 1. Ein Blatt, das unten klebt (Dialog), schrumpft beim Filtern von oben, das Suchfeld rutscht
+//    hinter die Tastatur. Dagegen: Höhe und Lage des sichtbaren Ausschnitts als --vv-h/--vv-o
+//    und die Klasse `tastatur`; die mobil.css einer App setzt das Blatt damit fest.
+// 2. Wird die Seite beim Filtern kürzer, springt das Scrollen zurück und das Feld wandert mit.
+//    Dagegen: Solange ein Textfeld im Hub den Fokus hat, behält der Hub seine Höhe.
+if (window.visualViewport) {
+  const vv = window.visualViewport, wurzel = document.documentElement;
+  const messen = () => {
+    wurzel.style.setProperty('--vv-h', `${vv.height}px`);
+    wurzel.style.setProperty('--vv-o', `${vv.offsetTop}px`);
+    wurzel.classList.toggle('tastatur', wurzel.clientHeight - vv.height > 120);
+  };
+  vv.addEventListener('resize', messen); vv.addEventListener('scroll', messen); messen();
+}
+const textfeld = t => t?.matches?.('input:not([type]), input[type=text], input[type=search], textarea');
+hubEl.addEventListener('focusin', e => { if (textfeld(e.target)) hubEl.style.minHeight = `${hubEl.offsetHeight}px`; });
+// Losgelassen wird verzögert: Verliert das Feld den Fokus, weil ein Treffer angetippt wird, darf die
+// Seite nicht unter dem Finger springen, sonst landet der Tipp daneben.
+hubEl.addEventListener('focusout', e => {
+  if (textfeld(e.target)) setTimeout(() => { if (!textfeld(document.activeElement)) hubEl.style.minHeight = ''; }, 500);
+});
 
 // Am Handy keine Tastatur für die Sätze, sondern das Rad (Wdh × kg). Die Felder bleiben die des Hubs,
 // das Rad füllt sie nur. Sonst (Notiz, Cardio, Wiegen) die Zahlentastatur statt der vollen.
