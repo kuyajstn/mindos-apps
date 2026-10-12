@@ -98,9 +98,30 @@
   background:var(--raised) !important; color:var(--tx2) !important; }
 #hub .tr-close::after { content:''; position:absolute; inset:-5px; }
 #hub .tr-in { font-size:16px !important; padding:10px 11px !important; }
-#hub .tr-satz { grid-template-columns:34px minmax(0,1fr) 16px minmax(0,1.2fr) 24px !important; gap:6px; padding:4px 0; }
-#hub .tr-satz .nr { width:32px; height:32px; font-size:13px; }
-#hub .tr-satz .tr-in { padding:10px 6px !important; text-align:center; font-weight:600; font-variant-numeric:tabular-nums; }
+/* Satz für Satz (seit 12.10.): Der Lauf füllt den Bildschirm. Statt Feldern steht der Wert groß da,
+   eingegeben wird über das Rad; die Felder bleiben unsichtbar, das Rad füllt sie. */
+#hub .tr-dlg.lauf { max-height:none; height:100dvh; border-radius:0 !important; border:0 !important;
+  padding:0 16px calc(var(--sa-u) + 24px) !important; }
+/* Kopf mit Abschließen bleibt oben stehen, auch wenn das Rad den Satz nach oben schiebt. */
+#hub .tr-lhead { position:sticky; top:0; z-index:3; margin:0 -16px; padding:calc(var(--sa-o) + 8px) 16px 0; background:var(--panel); }
+#hub .tr-dlg.lauf .tr-lbalken { margin:12px -16px 0; }
+#hub .tr-lname { font-size:27px; }
+#hub .tr-abschl { min-height:36px; font-size:14px !important; }
+#hub .tr-satz { min-height:76px; gap:12px; padding:8px 14px; }
+#hub .tr-satz .tr-in, #hub .tr-satz .x, #hub .tr-satz .kg, #hub .tr-satz .ok { display:none !important; }
+#hub .tr-satz .anz { display:block; font:600 22px var(--round); color:var(--tx4); white-space:nowrap; letter-spacing:-.01em; }
+#hub .tr-satz .anz i { font-style:normal; font-size:15px; margin:0 4px; }
+#hub .tr-satz .anz small { font-size:14px; margin-left:2px; }
+#hub .tr-satz.aktiv .anz { color:var(--tx2); }
+#hub .tr-satz.fertig .anz { color:var(--tx); }
+#hub .tr-satz.aus .wert { opacity:1; }
+#hub .tr-satz.aus .anz { font-size:14px; font-weight:500; }
+#hub .tr-satz .hist { font-size:11.5px; }
+#hub .tr-blaettern button { height:46px !important; font-size:15px; }
+#hub .tr-lkarte .tr-plus { padding:12px 14px 14px 58px !important; }
+#hub .tr-lknoepfe > * { min-height:50px; }
+/* Das Rad liegt unten über dem Lauf: Platz lassen, damit auch der letzte Satz darüber passt. */
+html.rad-auf #hub .tr-dlg { padding-bottom:calc(var(--sa-u) + 360px) !important; }
 #hub .tr-ue-kopf { flex-wrap:wrap; }
 #hub .tr-ue-kopf b { font-size:15px; }
 #hub .tr-plus { font-size:14px !important; padding:8px 0 !important; }
@@ -108,18 +129,21 @@
 #hub .tr-knoepfe > * { flex:1; justify-content:center; min-height:48px; }
 #hub .tr-wahl button { min-height:48px; font-size:15px; }
 
-/* ── Rad: Blatt über dem Eintragen-Dialog ─────────────────────────── */
-#rad { position:fixed; inset:0; z-index:95; background:rgba(0,0,0,.35); display:flex; align-items:flex-end; }
-.rad-blatt { width:100%; background:#1a1a20; border-top:1px solid rgba(255,255,255,.1); border-radius:22px 22px 0 0;
-  padding:14px 16px calc(var(--sa-u) + 14px); box-shadow:0 -20px 50px rgba(0,0,0,.6); animation:rad-rein .22s cubic-bezier(.2,.8,.2,1); }
+/* ── Rad: Blatt unten über dem Lauf, ohne Abdunkeln ─────────────── */
+#rad { position:fixed; left:0; right:0; bottom:0; z-index:95; }
+.rad-blatt { box-sizing:border-box; width:100%; background:#1a1a20; border-top:1px solid rgba(255,255,255,.1); border-radius:22px 22px 0 0;
+  padding:12px 14px calc(var(--sa-u) + 12px); box-shadow:0 -20px 50px rgba(0,0,0,.6); animation:rad-rein .22s cubic-bezier(.2,.8,.2,1); }
 @keyframes rad-rein { from { transform:translateY(40px); opacity:0; } to { transform:none; opacity:1; } }
-.rad-kopf { display:flex; align-items:center; gap:10px; margin-bottom:6px; }
+.rad-kopf { display:flex; align-items:center; gap:8px; margin-bottom:4px; }
 .rad-kopf > div { flex:1; min-width:0; }
 .rad-kopf b { display:block; font:700 17px ui-rounded,-apple-system,sans-serif; color:#f2f2f5; }
 .rad-kopf span { display:block; font-size:12.5px; color:#6e6e7a; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-.rad-weiter { font:600 15px -apple-system,sans-serif; color:#f2f2f5; background:#2a2a32; border:0; border-radius:12px; padding:11px 15px; }
-.rad-ok { width:46px; height:46px; border-radius:50%; border:0; background:#e62514; color:#fff; font-size:20px; font-weight:700; }
-.rad-walzen { position:relative; display:grid; grid-template-columns:1fr 26px 1.3fr 34px; align-items:center; height:220px; }
+.rad-knopf, .rad-ok { flex:none; width:46px; height:46px; border-radius:50%; border:0; display:grid; place-items:center; padding:0;
+  background:#2a2a32; color:#a3a3ae; }
+.rad-knopf svg, .rad-ok svg { width:22px; height:22px; fill:none; stroke:currentColor; stroke-width:2.2; stroke-linecap:round; stroke-linejoin:round; }
+.rad-weg { color:#ff6a4d; }
+.rad-ok { background:#e62514; color:#fff; } .rad-ok svg { stroke-width:2.6; }
+.rad-walzen { position:relative; display:grid; grid-template-columns:1fr 22px 1fr 14px 58px 36px; align-items:center; height:220px; }
 .rad-band { position:absolute; left:0; right:0; top:88px; height:44px; border-radius:12px; background:rgba(255,255,255,.08); pointer-events:none; }
 .rad-walze { height:220px; overflow-y:scroll; scroll-snap-type:y mandatory; scrollbar-width:none; -webkit-overflow-scrolling:touch;
   padding:88px 0; box-sizing:border-box; position:relative;
@@ -128,4 +152,6 @@
 .rad-walze::-webkit-scrollbar { display:none; }
 .rad-walze > div { height:44px; line-height:44px; text-align:center; scroll-snap-align:center;
   font:500 24px ui-rounded,-apple-system,sans-serif; font-variant-numeric:tabular-nums; color:#f2f2f5; }
+.rad-walze.kg > div { text-align:right; } .rad-walze.rest > div { text-align:left; }
 .rad-mal, .rad-einheit { text-align:center; font:500 20px -apple-system,sans-serif; color:#8a8a95; }
+.rad-komma { text-align:center; font:500 24px ui-rounded,-apple-system,sans-serif; color:#f2f2f5; position:relative; }

@@ -842,62 +842,104 @@ function zahlenfelder(root) {
 }
 
 // ── Rad ─────────────────────────────────────────────────────────
-// Zwei Walzen, die beim Scrollen einrasten. Das Scrollen macht das iPhone selbst,
-// deshalb fühlen sich Schwung und Einrasten an wie in einer echten App. Kein Ticken:
-// Web-Apps dürfen den Vibrationsmotor nicht ansprechen.
+// Drei Walzen, die beim Scrollen einrasten: Wdh × ganze kg , Nachkomma (,00 ,25 ,50 ,75 — seit 12.10.,
+// vorher eine Walze im 1,25er-Raster). Das Scrollen macht das iPhone selbst, deshalb fühlen sich Schwung
+// und Einrasten an wie in einer echten App. Kein Ticken: Web-Apps dürfen den Vibrationsmotor nicht ansprechen.
+// Satz für Satz (seit 12.10.): ✓ hakt den Satz im Hub ab (window.__th), danach steht das Rad auf dem
+// nächsten offenen Satz. Kein Abdunkeln, kein Schließen beim Danebentippen: Die Zeile darüber läuft beim
+// Drehen mit, und ein anderer Satz lässt sich direkt antippen.
 const ZEILE = 44;
 const WDH = ['', ...Array.from({ length:40 }, (_, i) => String(i + 1))];
-const KG_RASTER = ['', ...Array.from({ length:241 }, (_, i) => String(+(i * 1.25).toFixed(2)))];   // 0 … 300 kg
-const kgAnz = v => v === '' ? '–' : v.replace('.', ',');
+const KG_GANZ = ['', ...Array.from({ length:301 }, (_, i) => String(i))];   // 0 … 300 kg
+const KG_REST = ['00', '25', '50', '75'];
+const RAD_IC = {
+  zu:   '<path d="M6 9l6 6 6-6"/>',
+  skip: '<path d="M4 15a8 8 0 0 1 15-3.5"/><path d="M20 6v6h-6"/><circle cx="12" cy="17" r="1.4"/>',
+  weg:  '<path d="M4 7h16M9 7V4h6v3M6.5 7l1 13h9l1-13M10 11v6M14 11v6"/>',
+  ok:   '<path d="M5 12.5l4.5 4.5L19 7.5"/>',
+};
+const radIc = n => `<svg viewBox="0 0 24 24">${RAD_IC[n]}</svg>`;
 let rad = null;
 
-function radSchliessen() { rad?.el.remove(); rad = null; }
+function radSchliessen() { rad?.el.remove(); rad = null; document.documentElement.classList.remove('rad-auf'); }
 
 function radOeffnen(zeile) {
   radSchliessen();
-  const ue = zeile.closest('.tr-ue');
-  const wIn = zeile.querySelector('.g-w'), gIn = zeile.querySelector('.g-g');
+  if (!zeile) return;
+  const u = zeile.dataset.u, s = zeile.dataset.s, th = window.__th;
+  const sel = `#tr-dlg .tr-satz[data-u="${u}"][data-s="${s}"]`;
+  const finde = () => (u != null ? document.querySelector(sel) : null) || (zeile.isConnected ? zeile : null);
+  if (th && u != null) th.waehle(+u, +s);
+  const z0 = finde(); if (!z0) return;
+  const wIn = z0.querySelector('.g-w'), gIn = z0.querySelector('.g-g');
   const gJetzt = gIn.value.trim().replace(',', '.');
-  // Gewichte außerhalb des 1,25er-Rasters (Maschinen mit 84 kg) bleiben wählbar: Sie kommen dazu.
-  const kg = KG_RASTER.includes(String(+gJetzt)) || gJetzt === '' ? KG_RASTER
-    : [...KG_RASTER, String(+gJetzt)].sort((a, b) => (a === '' ? -1 : b === '' ? 1 : a - b));
-  const nr = [...ue.querySelectorAll('.tr-satz')].indexOf(zeile) + 1;
+  const g = gJetzt === '' || isNaN(+gJetzt) ? null : +gJetzt;
+  const ganz = g == null ? '' : String(Math.floor(g));
+  const rest = g == null ? '00' : String(Math.round((g - Math.floor(g)) * 100)).padStart(2, '0');
+  // Werte außerhalb des Rasters (Maschine mit 84,5 kg, über 300 kg) bleiben wählbar: Sie kommen dazu.
+  const ganze = ganz === '' || KG_GANZ.includes(ganz) ? KG_GANZ : [...KG_GANZ, ganz].sort((a, b) => (a === '' ? -1 : b === '' ? 1 : a - b));
+  const reste = KG_REST.includes(rest) ? KG_REST : [...KG_REST, rest].sort();
+  const fertig = z0.classList.contains('fertig');
+  const nr = u != null ? +s + 1 : [...z0.parentElement.querySelectorAll('.tr-satz')].indexOf(z0) + 1;
+  const name = z0.dataset.name || z0.closest('.tr-ue')?.querySelector('.tr-ue-kopf b')?.textContent || '';
   const el = document.createElement('div');
   el.id = 'rad';
   el.innerHTML = `<div class="rad-blatt">
-    <div class="rad-kopf"><div><b>Satz ${nr}</b><span>${ue.querySelector('.tr-ue-kopf b').textContent}</span></div>
-      <button class="rad-weiter">Nächster</button><button class="rad-ok" aria-label="Fertig">✓</button></div>
+    <div class="rad-kopf"><button class="rad-knopf rad-zu" aria-label="Schließen">${radIc('zu')}</button>
+      <div><b>Satz ${nr}${fertig ? ' bearbeiten' : ''}</b><span>${name}</span></div>
+      ${th ? (fertig ? `<button class="rad-knopf rad-weg" aria-label="Zurücknehmen">${radIc('weg')}</button>`
+        : `<button class="rad-knopf rad-skip" aria-label="Überspringen">${radIc('skip')}</button>`) : ''}
+      <button class="rad-ok" aria-label="Fertig">${radIc('ok')}</button></div>
     <div class="rad-walzen"><div class="rad-band"></div>
       <div class="rad-walze" data-f="w">${WDH.map(v => `<div>${v || '–'}</div>`).join('')}</div>
       <div class="rad-mal">×</div>
-      <div class="rad-walze" data-f="g">${kg.map(v => `<div>${kgAnz(v)}</div>`).join('')}</div>
+      <div class="rad-walze kg" data-f="ganz">${ganze.map(v => `<div>${v || '–'}</div>`).join('')}</div>
+      <div class="rad-komma">,</div>
+      <div class="rad-walze rest" data-f="rest">${reste.map(v => `<div>${v}</div>`).join('')}</div>
       <div class="rad-einheit">kg</div></div></div>`;
   document.body.appendChild(el);
-  rad = { el, zeile };
-  const walzen = { w:[el.querySelector('[data-f="w"]'), WDH, wIn], g:[el.querySelector('[data-f="g"]'), kg, gIn] };
-  for (const [walze, werte, feld] of Object.values(walzen)) {
-    const jetzt = feld === gIn ? (gJetzt === '' ? '' : String(+gJetzt)) : feld.value.trim();
+  document.documentElement.classList.add('rad-auf');
+  rad = { el, finde };
+  const walzen = { w:[WDH, wIn.value.trim()], ganz:[ganze, ganz], rest:[reste, rest] };
+  const wert = f => { const walze = el.querySelector(`[data-f="${f}"]`), werte = walzen[f][0];
+    return werte[Math.min(werte.length - 1, Math.max(0, Math.round(walze.scrollTop / ZEILE)))]; };
+  // Schreibt in die Felder des Hubs und meldet es ihm („input“), damit sein Stand mitläuft.
+  const uebernehmen = () => {
+    const z = finde(); if (!z) return;
+    const wv = wert('w'), gv = wert('ganz'), rv = wert('rest');
+    z.querySelector('.g-w').value = wv;
+    z.querySelector('.g-g').value = gv === '' ? '' : String(+`${gv}.${rv}`).replace('.', ',');
+    z.querySelector('.g-w').dispatchEvent(new Event('input', { bubbles:true }));
+  };
+  for (const [f, [werte, jetzt]] of Object.entries(walzen)) {
+    const walze = el.querySelector(`[data-f="${f}"]`);
     walze.scrollTop = Math.max(0, werte.indexOf(jetzt)) * ZEILE;
     let t = null;
-    walze.addEventListener('scroll', () => {
-      clearTimeout(t);
-      t = setTimeout(() => {
-        const v = werte[Math.min(werte.length - 1, Math.max(0, Math.round(walze.scrollTop / ZEILE)))];
-        feld.value = feld === gIn ? (v === '' ? '' : v.replace('.', ',')) : v;
-      }, 90);
-    }, { passive:true });
+    walze.addEventListener('scroll', () => { clearTimeout(t); t = setTimeout(uebernehmen, 90); }, { passive:true });
   }
-  el.addEventListener('click', e => { if (e.target === el) radSchliessen(); });
-  el.querySelector('.rad-ok').onclick = radSchliessen;
-  el.querySelector('.rad-weiter').onclick = () => {
-    const alle = [...document.querySelectorAll('#tr-dlg .tr-satz:not(.aus)')];
-    const naechste = alle[alle.indexOf(zeile) + 1];
-    naechste ? radOeffnen(naechste) : radSchliessen();
+  const weiter = n => n ? radOeffnen(n) : radSchliessen();
+  el.querySelector('.rad-zu').onclick = radSchliessen;
+  el.querySelector('.rad-ok').onclick = () => {
+    uebernehmen();
+    if (!th || u == null) return radSchliessen();
+    const n = th.fertig(+u, +s);
+    fertig ? radSchliessen() : weiter(n);
   };
+  el.querySelector('.rad-skip')?.addEventListener('click', () => weiter(th.aus(+u, +s)));
+  el.querySelector('.rad-weg')?.addEventListener('click', () => { th.zurueck(+u, +s); radSchliessen(); });
+  // Den Satz über das Blatt holen, falls es ihn verdeckt.
+  requestAnimationFrame(() => {
+    const z = finde(), dlg = document.getElementById('tr-dlg'); if (!z || !dlg) return;
+    const unten = z.getBoundingClientRect().bottom, kante = el.querySelector('.rad-blatt').getBoundingClientRect().top;
+    if (unten > kante - 12) dlg.scrollBy({ top:unten - kante + 28, behavior:'smooth' });
+  });
 }
 hubEl.addEventListener('click', e => {
-  const feld = e.target.closest('.tr-satz .tr-in');
-  if (feld) radOeffnen(feld.closest('.tr-satz'));
+  if (!APP.rad) return;
+  const z = e.target.closest('.tr-satz');
+  if (z && !e.target.closest('.nr, .ok')) return radOeffnen(z);
+  // Hat der Hub neu gezeichnet (Seite, Auslassen, Abschließen) und gibt es den Satz nicht mehr, geht das Rad zu.
+  setTimeout(() => { if (rad && (!rad.finde() || rad.finde().classList.contains('aus'))) radSchliessen(); });
 });
 
 // ── Statuszeile: nur, wenn es etwas zu sagen gibt ───────────────

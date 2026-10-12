@@ -28,8 +28,12 @@ Der Schlüssel (`tr-konf`) gilt für beide, alles andere im Speicher trägt das 
 
 - **Benutzt der Hub eine neue Obsidian-Funktion, stürzt die App ab**, bis sie in `shim()` in `app.js`
   nachgebildet ist. Prüfen mit `grep -o "dv\.[a-zA-Z]*\|app\.[a-zA-Z.]*\|require([^)]*)"` auf den Hub.
-- **Das Rad (Wdh × kg) gehört nur der App** (`radOeffnen` in `app.js`): Es füllt die Felder `.tr-satz .g-w/.g-g`, die der
-  Hub zeichnet. Benennt der Hub diese Klassen um, findet das Rad nichts mehr.
+- **Das Rad (Wdh × kg , Nachkomma) gehört nur der App** (`radOeffnen` in `app.js`): Es füllt die Felder `.tr-satz .g-w/.g-g`, die der
+  Hub zeichnet, und meldet jede Änderung mit einem `input`-Ereignis. **Seit 12.10. Satz für Satz:** ✓ ruft `window.__th.fertig(u, s)`
+  (Zeile über `data-u`/`data-s`), ↷ `aus`, der Papierkorb `zurueck`; die Antwort ist die nächste offene Zeile, auf die das Rad springt.
+  Drei Walzen: ganze kg 0–300 und `,00/,25/,50/,75`, Werte außerhalb kommen dazu. Kein Abdunkeln, `html.rad-auf` gibt dem Lauf unten Platz.
+  Ohne `window.__th` (alter Hub-Stand) schließt ✓ nur. Benennt der Hub Klassen oder `__th` um, findet das Rad nichts mehr.
+  Was der Hub dabei macht: Abschnitt Training Hub in `MindOS/02 Life OS/1. Agent — Life OS.md`.
 - **Schreiben läuft immer über die Warteschlange, streng nacheinander** (`schreiben` → `einreihen` → `abarbeiten`).
   **Sofort anzeigen (seit 09.10.):** `schreiben` kehrt zurück, sobald der Eintrag eingereiht ist; gesendet wird im
   Hintergrund. Der Hub bekommt deshalb keine Fehler mehr zu sehen: Was scheitert, steht oben in der Leiste
