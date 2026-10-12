@@ -150,8 +150,9 @@ html.rad-auf #hub .tr-dlg { padding-bottom:calc(var(--sa-u) + 360px) !important;
   -webkit-mask-image:linear-gradient(180deg, transparent, #000 35%, #000 65%, transparent);
           mask-image:linear-gradient(180deg, transparent, #000 35%, #000 65%, transparent); }
 .rad-walze::-webkit-scrollbar { display:none; }
-.rad-walze > div { height:44px; line-height:44px; text-align:center; scroll-snap-align:center;
-  font:500 24px ui-rounded,-apple-system,sans-serif; font-variant-numeric:tabular-nums; color:#f2f2f5; }
+.rad-walze > div { height:44px; text-align:center; scroll-snap-align:center;
+  font:500 24px/44px ui-rounded,-apple-system,sans-serif; font-variant-numeric:tabular-nums; color:#f2f2f5; }
+/* Zeilenhöhe steckt in „font“: als eigene Angabe davor setzte die Kurzschreibweise sie auf normal zurück, die Ziffern saßen oben im Band. */
 .rad-walze.kg > div { text-align:right; } .rad-walze.rest > div { text-align:left; }
 .rad-mal, .rad-einheit { text-align:center; font:500 20px -apple-system,sans-serif; color:#8a8a95; }
 .rad-komma { text-align:center; font:500 24px ui-rounded,-apple-system,sans-serif; color:#f2f2f5; position:relative; }
