@@ -1087,12 +1087,18 @@ if (!DEV && 'serviceWorker' in navigator) navigator.serviceWorker.register(APP.s
 if (konf()) start(); else einrichten();
 
 
-// ── Wegwischen am Griff (seit 13.10.) ───────────────────────────
-// Sparsam (Justin): nur am Griff und am Kopf eines Blatts, nie in der Fläche — sonst Streit mit Scrollen,
-// Wochenleiste und Rad. Nach unten ziehen = dasselbe wie ✕ (Blatt) bzw. Parken (Lauf). Kurz gezogen federt es zurück.
+// ── Blätter: wegwischen mit der ganzen Fläche, Hintergrund steht still (seit 13.10. abends) ──
+// Wie bei iOS (Justin, 13.10.: nicht nur am Griff zielen müssen): Nach unten ziehen nimmt das Blatt mit, sobald sein
+// Inhalt ganz oben steht; sonst scrollt erst der Inhalt. Seitliche Bewegungen, Eingabefelder und der Lauf (Vollbild)
+// bleiben außen vor. Solange ein Blatt offen ist, scrollt der Hintergrund nie mit, weder bei Tipps aufs Blatt noch daneben.
 (() => {
-  // Training: Dialog-Blatt und Lauf. Küche: das Blatt #ml-prep-inner (Einplanen, Eintrag, Rest, Neues Rezept).
-  const blattVon = e => e.target.closest('#tr-dlg, #ml-prep-inner');
+  // Training: Dialog-Blatt (nicht der Lauf). Küche: das Blatt #ml-prep-inner (Einplanen, Eintrag, Rest, Neues Rezept).
+  const BLATT = '#tr-dlg, #ml-prep-inner';
+  const sichtbar = el => el && el.getClientRects().length > 0;
+  const offenesBlatt = () => {
+    const t = document.querySelector('#tr-modal.auf #tr-dlg:not(.lauf)'); if (t && t.firstElementChild) return t;
+    const k = document.querySelector('#ml-prep-inner'); return sichtbar(k) ? k : null;
+  };
   const griffSetzen = () => {
     const d = document.querySelector('#tr-modal.auf #tr-dlg');
     if (d && d.firstElementChild && !d.classList.contains('lauf') && !d.querySelector(':scope > .griff')) d.insertAdjacentHTML('afterbegin', '<div class="griff" aria-hidden="true"></div>');
@@ -1100,27 +1106,59 @@ if (konf()) start(); else einrichten();
     if (k && k.firstElementChild && !k.querySelector(':scope > .griff')) k.insertAdjacentHTML('afterbegin', '<div class="griff" aria-hidden="true"></div>');
   };
   new MutationObserver(griffSetzen).observe(document.getElementById('hub'), { childList:true, subtree:true });
-  let zug = null;
+  // Der scrollbare Bereich unter dem Finger, innerhalb des Blatts (das Blatt selbst eingeschlossen).
+  const scrollerIn = (el, blatt) => {
+    for (let n = el; n; n = n.parentElement) {
+      const o = getComputedStyle(n).overflowY;
+      if ((o === 'auto' || o === 'scroll') && n.scrollHeight > n.clientHeight + 1) return n;
+      if (n === blatt) return null;
+    }
+    return null;
+  };
+  let g = null, klickSperre = 0;
   document.addEventListener('touchstart', e => {
-    const d = blattVon(e); if (!d || d.classList.contains('lauf')) return;
-    const amGriff = e.target.closest('.griff, .tr-dlgkopf, .tr-lhead, .ep-kopf');
-    if (!amGriff || e.target.closest('button, input, .tr-zaehler')) return;
-    zug = { d, y:e.touches[0].clientY, t:Date.now(), dy:0 };
-    d.style.transition = 'none';
+    const d = e.target.closest(BLATT);
+    if (!d || d.classList.contains('lauf')) { g = !d && offenesBlatt() ? { aussen:true } : null; return; }
+    if (e.target.closest('input, textarea, select, [contenteditable]')) { g = { modus:'frei' }; return; }
+    const t = e.touches[0];
+    g = { d, x0:t.clientX, y0:t.clientY, y:t.clientY, t:Date.now(), modus:null, sc:scrollerIn(e.target, d), dy:0 };
   }, { passive:true });
   document.addEventListener('touchmove', e => {
-    if (!zug) return;
-    zug.dy = Math.max(0, e.touches[0].clientY - zug.y);
-    if (zug.dy > 4) e.preventDefault();
-    zug.d.style.transform = `translateY(${zug.dy}px)`;
+    if (!g) return;
+    if (g.aussen) { e.preventDefault(); return; }
+    if (g.modus === 'frei' || g.modus === 'quer') return;
+    const t = e.touches[0], schritt = t.clientY - g.y; g.y = t.clientY;
+    if (!g.modus) {
+      const dx = t.clientX - g.x0, dy = t.clientY - g.y0;
+      if (Math.abs(dx) < 6 && Math.abs(dy) < 6) return;
+      if (Math.abs(dx) > Math.abs(dy)) { g.modus = 'quer'; return; }
+      if (dy > 0 && (!g.sc || g.sc.scrollTop <= 0)) { g.modus = 'zug'; g.y0 = t.clientY; g.d.style.transition = 'none'; }
+      else g.modus = 'scroll';
+    }
+    if (g.modus === 'zug') {
+      e.preventDefault();
+      g.dy = Math.max(0, t.clientY - g.y0);
+      g.d.style.transform = `translateY(${g.dy}px)`;
+      return;
+    }
+    // Im Blatt scrollen, aber am Anfang oder Ende nie an den Hintergrund weiterreichen.
+    if (!g.sc) { e.preventDefault(); return; }
+    const amAnfang = g.sc.scrollTop <= 0 && schritt > 0;
+    const amEnde = g.sc.scrollTop + g.sc.clientHeight >= g.sc.scrollHeight - 1 && schritt < 0;
+    if (amAnfang || amEnde) e.preventDefault();
   }, { passive:false });
-  document.addEventListener('touchend', () => {
-    if (!zug) return; const z = zug; zug = null;
+  const ende = () => {
+    if (!g || g.modus !== 'zug') { g = null; return; }
+    const z = g; g = null; klickSperre = Date.now();
     const v = z.dy / Math.max(1, Date.now() - z.t), weg = z.dy > 120 || (z.dy > 40 && v > .6);
     z.d.style.transition = 'transform .22s cubic-bezier(.2,.8,.2,1)';
     if (!weg) { z.d.style.transform = ''; return; }
     z.d.style.transform = `translateY(${z.d.offsetHeight}px)`;
     setTimeout(() => { z.d.style.transition = ''; z.d.style.transform = '';
       (z.d.querySelector('.tr-lkopf [data-zu], .tr-dlgkopf [data-zu], #ml-plan-close, #tg-zu, #ml-rest-close, .kh-x') || z.d.querySelector('[data-zu]'))?.click(); }, 200);
-  });
+  };
+  document.addEventListener('touchend', ende);
+  document.addEventListener('touchcancel', ende);
+  // Wer ein Blatt gezogen hat, hat keinen Knopf darauf gemeint.
+  document.addEventListener('click', e => { if (Date.now() - klickSperre < 400) { e.preventDefault(); e.stopPropagation(); } }, true);
 })();
