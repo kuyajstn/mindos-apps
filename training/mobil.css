@@ -29,7 +29,7 @@
 /* Fest statt angeheftet (13.10.): Safari am iPhone verlor bei sticky beim Scrollen nach und nach den Inhalt der Zeile.
    Den Platz darüber hält --kopf-h frei, das app.js an der echten Höhe misst. */
 #hub .tr-top { position:fixed; top:0; left:0; right:0; z-index:30; min-height:0; padding:calc(var(--sa-o) + 10px) 18px 10px !important; background:none !important; }
-#hub .tr-main { padding-top:calc(var(--kopf-h, calc(var(--sa-o) + 51px)) + var(--doc-versatz, 0px)); }
+#hub .tr-main { padding-top:calc(var(--kopf-h, calc(var(--sa-o) + 51px))); }
 /* Jeder Teil der Kopfzeile auf eigener Zeichenebene (13.10.): Safari am iPhone (iOS 26) verlor beim Scrollen den normal
    gezeichneten Inhalt der festen Kopfzeile, nur Teile mit eigener Ebene blieben (in der Küche die pulsierende Flamme). */
 #hub .tr-top > * { transform:translateZ(0); }
