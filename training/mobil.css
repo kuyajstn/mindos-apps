@@ -165,3 +165,20 @@ html.rad-auf #hub .tr-dlg { padding-bottom:calc(var(--sa-u) + 360px) !important;
 .rad-walze.kg > div { text-align:right; } .rad-walze.rest > div { text-align:left; }
 .rad-mal, .rad-einheit { text-align:center; font:500 20px -apple-system,sans-serif; color:#8a8a95; }
 .rad-komma { text-align:center; font:500 24px ui-rounded,-apple-system,sans-serif; color:#f2f2f5; position:relative; }
+
+/* ── Umbau 13.10. (Hybrid: Heute · Pläne · Verlauf · Körper) ─────── */
+/* Kopf: die Marke Woche/Serie sitzt rechts wie vorher das Gewicht. Unterseiten: Zurück + Titel. */
+#hub .tr-marke { margin-left:auto; }
+#hub .tr-top h1.klein { font-size:21px; }
+/* „Training starten“ in der Auswahl klebt über der Leiste unten. */
+#hub .tr-start { bottom:calc(var(--sa-u) + 78px); }
+/* Verlauf: Kalender über den Wochen, keine Spalten. */
+#hub .tr-verlauf { display:flex !important; }
+/* Lauf: Kurve und Übersicht in voller Breite; der Abschließen-Dialog liegt über dem Rad. */
+#hub .tr-ldlg-schleier, #hub .tr-ldlg { position:fixed; }
+#hub .tr-ldlg-schleier { z-index:110; } #hub .tr-ldlg { z-index:111; }
+#hub .tr-ldlg .tr-in { font-size:16px !important; }
+#hub .tr-lchart { padding:14px 14px 12px; }
+/* Freies Training und Körper als Blatt: Kacheln und Import fingerbreit. */
+#hub .tr-kachel { min-height:96px; }
+#hub .tr-import { min-height:56px; }

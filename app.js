@@ -939,6 +939,8 @@ function radOeffnen(zeile) {
 }
 hubEl.addEventListener('click', e => {
   if (!APP.rad) return;
+  // Abschließen öffnet im Hub einen Dialog über dem Lauf (seit 13.10.): Das Rad geht dafür zu.
+  if (e.target.closest('#tr-abschl')) return radSchliessen();
   const z = e.target.closest('.tr-satz');
   if (z && !e.target.closest('.nr, .ok')) return radOeffnen(z);
   // Hat der Hub neu gezeichnet (Seite, Auslassen, Abschließen) und gibt es den Satz nicht mehr, geht das Rad zu.
