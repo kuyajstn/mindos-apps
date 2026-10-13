@@ -945,7 +945,17 @@ hubEl.addEventListener('click', e => {
   // Abschließen öffnet im Hub einen Dialog über dem Lauf (seit 13.10.): Das Rad geht dafür zu.
   if (e.target.closest('#tr-abschl, #tr-verwerfen')) return radSchliessen();
   const z = e.target.closest('.tr-satz');
-  if (z && !e.target.closest('.nr, .ok, .weg')) return radOeffnen(z);
+  // Der Kreis hakt im Hub ab (seit 13.10.). War das Rad offen, folgt es dem nächsten Satz; ein Satz ohne Werte öffnet es.
+  if (z && e.target.closest('.nr')) {
+    const warOffen = !!rad, u = z.dataset.u, s = z.dataset.s;
+    setTimeout(() => {
+      const a = document.querySelector('#tr-dlg .tr-satz.aktiv'); if (!a) return radSchliessen();
+      const leer = !a.querySelector('.g-w')?.value && !a.querySelector('.g-g')?.value, selbe = a.dataset.u === u && a.dataset.s === s;
+      if (warOffen || (leer && selbe && !a.classList.contains('fertig'))) radOeffnen(a);
+    });
+    return;
+  }
+  if (z && !e.target.closest('.ok, .weg')) return radOeffnen(z);
   // Hat der Hub neu gezeichnet (Seite, Auslassen, Abschließen) und gibt es den Satz nicht mehr, geht das Rad zu.
   setTimeout(() => { if (rad && (!rad.finde() || rad.finde().classList.contains('aus'))) radSchliessen(); });
 });
