@@ -13,7 +13,7 @@ Apps **eine** Datei.
 | Handy-Layout | `training/mobil.css` | `kitchen/mobil.css` |
 
 Gemeinsam: `app.js`, `basis.css` (Seite, Statusleiste, Einrichten, Leser), `sw.js` (eine Hülle für alle), `vendor/`,
-`index.html` (Übersicht mit allen Apps). Eine neue App = ein neuer Ordner mit `index.html`, `mobil.css`, Manifest, Symbolen
+`index.html` (Übersicht mit allen Apps). **Kopfknöpfe** (✕ ‹ ⌄ ✓ in Blatt- und Laufköpfen) sind in beiden Apps 40 px mit Zeichen 20 px, Form über `--kopf-r` in `basis.css` (abgerundet, seit 13.10.). **Griff und Wegwischen** (`app.js`, Abschnitt „Wegwischen am Griff“): nur an Blättern (`#tr-dlg` ohne `.lauf`, `#ml-prep-inner`), nie am Lauf. Eine neue App = ein neuer Ordner mit `index.html`, `mobil.css`, Manifest, Symbolen
 und ein Eintrag in `HUELLE` und in der Übersicht.
 Der Schlüssel (`tr-konf`) gilt für beide, alles andere im Speicher trägt das Kürzel der App (`tr-`, `ki-`).
 
@@ -35,7 +35,7 @@ Der Schlüssel (`tr-konf`) gilt für beide, alles andere im Speicher trägt das 
   Hub zeichnet, und meldet jede Änderung mit einem `input`-Ereignis. **Seit 12.10. Satz für Satz:** ✓ ruft `window.__th.fertig(u, s)`
   (Zeile über `data-u`/`data-s`), ↷ `aus`, der Papierkorb `zurueck`; die Antwort ist die nächste offene Zeile, auf die das Rad springt.
   Drei Walzen: ganze kg 0–300 und `,00/,25/,50/,75`, Werte außerhalb kommen dazu. Kein Abdunkeln, `html.rad-auf` gibt dem Lauf unten Platz.
-  Ohne `window.__th` (alter Hub-Stand) schließt ✓ nur. **Seit 13.10.:** Ein Tipp auf „Abschließen“ (`#tr-abschl`) schließt das Rad, weil der Hub dann einen Dialog über den Lauf legt. Benennt der Hub Klassen oder `__th` um, findet das Rad nichts mehr.
+  Ohne `window.__th` (alter Hub-Stand) schließt ✓ nur. **Seit 13.10. (`apps-v27`):** Eine Zeile mit `data-extra` bekommt im Rad den Mülleimer `.rad-loeschen` (ruft `__th.loeschen`) statt ↷ bzw. Zurücknehmen; `#tr-verwerfen` schließt das Rad wie „Abschließen“. **Seit 13.10.:** Ein Tipp auf „Abschließen“ (`#tr-abschl`) schließt das Rad, weil der Hub dann einen Dialog über den Lauf legt. Benennt der Hub Klassen oder `__th` um, findet das Rad nichts mehr.
   Was der Hub dabei macht: Abschnitt Training Hub in `MindOS/02 Life OS/1. Agent — Life OS.md`.
 - **Schreiben läuft immer über die Warteschlange, streng nacheinander** (`schreiben` → `einreihen` → `abarbeiten`).
   **Sofort anzeigen (seit 09.10.):** `schreiben` kehrt zurück, sobald der Eintrag eingereiht ist; gesendet wird im
