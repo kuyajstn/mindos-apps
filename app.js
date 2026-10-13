@@ -829,6 +829,23 @@ if (window.visualViewport) {
   vv.addEventListener('resize', messen); vv.addEventListener('scroll', messen); messen();
 }
 const textfeld = t => t?.matches?.('input:not([type]), input[type=text], input[type=search], textarea');
+// Feld im Blatt über die Tastatur holen (13.10., Justin: Portionen-Feld lag hinter der Tastatur). Das Blatt rückt zwar über
+// die Tastatur (html.tastatur), scrollt aber nicht von selbst zum Feld. Deshalb nach dem Aufgehen der Tastatur das Feld
+// in die Mitte seines scrollbaren Bereichs holen, ohne die Seite dahinter zu bewegen.
+const feldZeigen = el => {
+  if (!el?.isConnected || document.activeElement !== el) return;
+  let sc = el.parentElement;
+  while (sc && !(['auto', 'scroll'].includes(getComputedStyle(sc).overflowY) && sc.scrollHeight > sc.clientHeight + 1)) sc = sc.parentElement;
+  if (!sc || sc === document.documentElement || sc === document.body) return;
+  const r = el.getBoundingClientRect(), b = sc.getBoundingClientRect(), sichtbarUnten = Math.min(b.bottom, (window.visualViewport?.offsetTop || 0) + (window.visualViewport?.height || innerHeight));
+  if (r.top >= b.top + 8 && r.bottom <= sichtbarUnten - 8) return;
+  sc.scrollTop += r.top - b.top - ((sichtbarUnten - b.top) / 2 - r.height / 2);
+};
+document.addEventListener('focusin', e => {
+  const el = e.target;
+  if (!el.matches?.('input, textarea') || !el.closest('#ml-prep-inner, #tr-dlg, #leser .le-blatt')) return;
+  [80, 350, 700].forEach(ms => setTimeout(() => feldZeigen(el), ms));
+});
 hubEl.addEventListener('focusin', e => { if (textfeld(e.target)) hubEl.style.minHeight = `${hubEl.offsetHeight}px`; });
 // Losgelassen wird verzögert: Verliert das Feld den Fokus, weil ein Treffer angetippt wird, darf die
 // Seite nicht unter dem Finger springen, sonst landet der Tipp daneben.
