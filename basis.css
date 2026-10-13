@@ -11,6 +11,10 @@ body { font:15px/1.45 -apple-system,BlinkMacSystemFont,sans-serif; -webkit-tap-h
 /* Kein Zoomen wie in einer echten App (13.10.): Zwei-Finger- und Doppeltipp-Zoom aus, Scrollen bleibt.
    iOS ignoriert user-scalable=no im Viewport, deshalb zusätzlich touch-action und gesturestart in app.js. */
 html { touch-action:pan-x pan-y; }
+/* Kein Markieren wie in einer echten App (13.10.): Langes Drücken wählte Titel und Zahlen aus („Kopieren · Nachschlagen“).
+   Eingabefelder bleiben markierbar, dort braucht man Auswählen und Einfügen. */
+html { -webkit-user-select:none; user-select:none; }
+input, textarea, [contenteditable="true"] { -webkit-user-select:text; user-select:text; }
 
 /* ── Eigene Teile der App ──────────────────────────────────────── */
 #status { position:fixed; z-index:80; left:50%; top:calc(var(--sa-o) + 8px); transform:translateX(-50%);
