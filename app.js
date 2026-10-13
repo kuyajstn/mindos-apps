@@ -1032,7 +1032,19 @@ async function start() {
   if (dateien[HUB]) hubStarten();             // sofort aus dem Cache, auch ohne Netz
   if (await laden() || !hubEl.firstChild) hubStarten();
   if (DEV) testKlick();
+  nachbauen();
 }
+
+// iOS 26, Startbildschirm-App (13.10.): Nach dem Start zeichnet Safari den Inhalt manchmal zu weit oben, unter die feste
+// Kopfzeile, und korrigiert das erst bei einem Neuaufbau (beobachtet: Verschieben eines Tages repariert es).
+// Deshalb einmal kurz nach dem Start neu aufbauen, nur wenn nichts offen ist, das dabei verloren ginge.
+function nachbauen() {
+  if (!navigator.standalone) return;
+  const offen = () => document.querySelector('#tr-modal.auf, #rad, #leser, #ml-prep-modal[style*="flex"], #ml-prep-modal.auf, .kt-blatt')
+    || document.activeElement?.matches?.('input, textarea');
+  [700, 2000].forEach(ms => setTimeout(() => { if (!offen()) hubStarten(); }, ms));
+}
+window.addEventListener('pageshow', e => { if (e.persisted) nachbauen(); });
 
 // Höhe der festen Kopfzeile als --kopf-rest (13.10.): Die Kopfzeile steht fest (fixed) statt angeheftet,
 // der Inhalt darunter braucht ihren Platz frei. Gemessen statt geschätzt, weil sie je Ansicht anders hoch ist.
