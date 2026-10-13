@@ -1119,7 +1119,10 @@ if (konf()) start(); else einrichten();
   document.addEventListener('touchstart', e => {
     const d = e.target.closest(BLATT);
     if (!d || d.classList.contains('lauf')) { g = !d && offenesBlatt() ? { aussen:true } : null; return; }
-    if (e.target.closest('input, textarea, select, [contenteditable]')) { g = { modus:'frei' }; return; }
+    // Nur ein Feld, in dem gerade getippt wird, bleibt frei (Cursor, Markieren). Ein nicht fokussiertes Feld ist Fläche wie jede andere:
+    // Im Körper-Blatt besteht fast alles aus Feldern, dort scrollte sonst der Hintergrund (13.10.).
+    const feld = e.target.closest('input, textarea, select, [contenteditable]');
+    if (feld && (feld === document.activeElement || feld.matches('textarea'))) { g = { modus:'frei' }; return; }
     const t = e.touches[0];
     g = { d, x0:t.clientX, y0:t.clientY, y:t.clientY, t:Date.now(), modus:null, sc:scrollerIn(e.target, d), dy:0 };
   }, { passive:true });
@@ -1128,13 +1131,16 @@ if (konf()) start(); else einrichten();
     if (g.aussen) { e.preventDefault(); return; }
     if (g.modus === 'frei' || g.modus === 'quer') return;
     const t = e.touches[0], schritt = t.clientY - g.y; g.y = t.clientY;
+    // Entschieden wird bei der ersten Bewegung, nicht erst nach ein paar Pixeln: Safari legt beim ersten touchmove fest,
+    // ob es scrollt, und lässt sich danach nicht mehr aufhalten (13.10.: Hintergrund scrollte „manchmal“).
     if (!g.modus) {
       const dx = t.clientX - g.x0, dy = t.clientY - g.y0;
-      if (Math.abs(dx) < 6 && Math.abs(dy) < 6) return;
-      if (Math.abs(dx) > Math.abs(dy)) { g.modus = 'quer'; return; }
+      if (!dx && !dy) return;
+      if (Math.abs(dx) > Math.abs(dy) * 1.5) { g.modus = 'quer'; return; }
       if (dy > 0 && (!g.sc || g.sc.scrollTop <= 0)) { g.modus = 'zug'; g.y0 = t.clientY; g.d.style.transition = 'none'; }
-      else g.modus = 'scroll';
+      else g.modus = g.sc ? 'scroll' : 'fest';
     }
+    if (g.modus === 'fest') { e.preventDefault(); return; }
     if (g.modus === 'zug') {
       e.preventDefault();
       g.dy = Math.max(0, t.clientY - g.y0);
@@ -1149,7 +1155,8 @@ if (konf()) start(); else einrichten();
   }, { passive:false });
   const ende = () => {
     if (!g || g.modus !== 'zug') { g = null; return; }
-    const z = g; g = null; klickSperre = Date.now();
+    // Ein Tipp mit etwas Zittern ist kein Zug: Klicks nur nach einem echten Zug schlucken, sonst gingen Felder und Knöpfe nicht mehr.
+    const z = g; g = null; if (z.dy > 10) klickSperre = Date.now();
     const v = z.dy / Math.max(1, Date.now() - z.t), weg = z.dy > 120 || (z.dy > 40 && v > .6);
     z.d.style.transition = 'transform .22s cubic-bezier(.2,.8,.2,1)';
     if (!weg) { z.d.style.transform = ''; return; }

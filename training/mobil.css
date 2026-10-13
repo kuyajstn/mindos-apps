@@ -212,3 +212,6 @@ html.tastatur #hub .tr-ldlg { top:calc(var(--vv-o) + var(--vv-h) / 2) !important
 #hub .tr-lkopf { gap:8px; } #hub .tr-lkopf .t { margin:0 4px; }
 /* Löschen eines Extra-Satzes läuft am Handy übers Rad */
 #hub .tr-satz .weg { display:none !important; }
+
+/* Scrollen im Blatt nie an den Hintergrund weiterreichen (13.10.), zusätzlich zur Sperre in app.js */
+#hub .tr-dlg { overscroll-behavior:contain; }

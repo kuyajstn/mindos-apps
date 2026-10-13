@@ -118,3 +118,6 @@ html.tastatur #hub .kh #ml-prep-inner { height:calc(var(--vv-h) - 12px); max-hei
 #hub .kh button.kh-close svg, #leser .kh button.kh-close svg, #hub .kh button.kt-blatt-zu svg { width:20px; height:20px; }
 #hub .kh button.kh-close.kh-x { top:12px; right:12px; }
 #hub #ml-prep-inner > .griff { width:38px; height:5px; border-radius:3px; background:rgba(255,255,255,.2); margin:-6px auto 10px; }
+
+/* Scrollen im Blatt nie an den Hintergrund weiterreichen (13.10.), zusätzlich zur Sperre in app.js */
+#hub #ml-prep-inner { overscroll-behavior:contain; }
