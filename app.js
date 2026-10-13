@@ -1092,11 +1092,13 @@ if (konf()) start(); else einrichten();
 // Inhalt ganz oben steht; sonst scrollt erst der Inhalt. Seitliche Bewegungen, Eingabefelder und der Lauf (Vollbild)
 // bleiben außen vor. Solange ein Blatt offen ist, scrollt der Hintergrund nie mit, weder bei Tipps aufs Blatt noch daneben.
 (() => {
-  // Training: Dialog-Blatt (nicht der Lauf). Küche: das Blatt #ml-prep-inner (Einplanen, Eintrag, Rest, Neues Rezept).
-  const BLATT = '#tr-dlg, #ml-prep-inner';
+  // Training: Dialog-Blatt (nicht der Lauf). Küche: das Blatt #ml-prep-inner (Einplanen, Eintrag, Rest, Neues Rezept)
+  // und seit 13.10. der Leser (Rezept-Ansicht, Kochlauf: Wischen = ✕, der Kochlauf wird dabei nur pausiert).
+  const BLATT = '#tr-dlg, #ml-prep-inner, #leser .le-blatt';
   const sichtbar = el => el && el.getClientRects().length > 0;
   const offenesBlatt = () => {
     const t = document.querySelector('#tr-modal.auf #tr-dlg:not(.lauf)'); if (t && t.firstElementChild) return t;
+    const l = document.querySelector('#leser .le-blatt'); if (sichtbar(l)) return l;
     const k = document.querySelector('#ml-prep-inner'); return sichtbar(k) ? k : null;
   };
   const griffSetzen = () => {
@@ -1104,8 +1106,11 @@ if (konf()) start(); else einrichten();
     if (d && d.firstElementChild && !d.classList.contains('lauf') && !d.querySelector(':scope > .griff')) d.insertAdjacentHTML('afterbegin', '<div class="griff" aria-hidden="true"></div>');
     const k = document.querySelector('#ml-prep-inner');
     if (k && k.firstElementChild && !k.querySelector(':scope > .griff')) k.insertAdjacentHTML('afterbegin', '<div class="griff" aria-hidden="true"></div>');
+    const l = document.querySelector('#leser .le-blatt');
+    if (l && !l.querySelector(':scope > .griff')) l.insertAdjacentHTML('afterbegin', '<div class="griff" aria-hidden="true"></div>');
   };
-  new MutationObserver(griffSetzen).observe(document.getElementById('hub'), { childList:true, subtree:true });
+  // Der Leser hängt am body, nicht im Hub: deshalb den ganzen body beobachten.
+  new MutationObserver(griffSetzen).observe(document.body, { childList:true, subtree:true });
   // Der scrollbare Bereich unter dem Finger, innerhalb des Blatts (das Blatt selbst eingeschlossen).
   const scrollerIn = (el, blatt) => {
     for (let n = el; n; n = n.parentElement) {
@@ -1118,7 +1123,8 @@ if (konf()) start(); else einrichten();
   let g = null, klickSperre = 0;
   document.addEventListener('touchstart', e => {
     const d = e.target.closest(BLATT);
-    if (!d || d.classList.contains('lauf')) { g = !d && offenesBlatt() ? { aussen:true } : null; return; }
+    // Ausgenommen ist nur der Trainingslauf (Vollbild). Leser und Kochlauf tragen ebenfalls .lauf, sind aber Blätter.
+    if (!d || d.matches('#tr-dlg.lauf')) { g = !d && offenesBlatt() ? { aussen:true } : null; return; }
     // Nur ein Feld, in dem gerade getippt wird, bleibt frei (Cursor, Markieren). Ein nicht fokussiertes Feld ist Fläche wie jede andere:
     // Im Körper-Blatt besteht fast alles aus Feldern, dort scrollte sonst der Hintergrund (13.10.).
     const feld = e.target.closest('input, textarea, select, [contenteditable]');
@@ -1171,7 +1177,7 @@ if (konf()) start(); else einrichten();
     setTimeout(() => { z.d.style.transition = ''; z.d.style.transform = '';
       // Die Klicksperre gilt dem Daumen, nicht diesem Schließen: vorher aufheben, sonst schluckt sie es (13.10.: Blatt sprang zurück).
       klickSperre = 0;
-      (z.d.querySelector('.tr-lkopf [data-zu], .tr-dlgkopf [data-zu], #ml-plan-close, #tg-zu, #ml-rest-close, .kh-x') || z.d.querySelector('[data-zu]'))?.click(); }, 200);
+      (z.d.querySelector('.tr-lkopf [data-zu], .tr-dlgkopf [data-zu], #ml-plan-close, #tg-zu, #ml-rest-close, .kh-x, .le-zu') || z.d.querySelector('[data-zu]'))?.click(); }, 200);
   };
   document.addEventListener('touchend', ende);
   document.addEventListener('touchcancel', ende);
