@@ -1034,13 +1034,15 @@ async function start() {
   if (DEV) testKlick();
 }
 
-// Höhe der festen Kopfzeile als --kopf-h (13.10.): Die Kopfzeile steht fest (fixed) statt angeheftet,
+// Höhe der festen Kopfzeile als --kopf-rest (13.10.): Die Kopfzeile steht fest (fixed) statt angeheftet,
 // der Inhalt darunter braucht ihren Platz frei. Gemessen statt geschätzt, weil sie je Ansicht anders hoch ist.
 (() => {
   let kopf = null, geplant = false;
   const messen = () => { geplant = false; const k = document.querySelector('#hub .tr-top, #hub .kt-top');
     if (k !== kopf) { kopf && ro.unobserve(kopf); kopf = k; k && ro.observe(k); }
-    if (k) document.documentElement.style.setProperty('--kopf-h', `${k.offsetHeight}px`); };
+    // Nur die Höhe unterhalb des oberen Polsters: Das Polster enthält den Rand der Statusleiste, den das CSS selbst
+    // dazurechnet. So stimmt der Abstand auch, wenn Safari den Rand erst nach der Messung liefert (iOS 26, 13.10.).
+    if (k) document.documentElement.style.setProperty('--kopf-rest', `${k.offsetHeight - parseFloat(getComputedStyle(k).paddingTop)}px`); };
   const ro = new ResizeObserver(() => messen());
   new MutationObserver(() => { if (!geplant) { geplant = true; requestAnimationFrame(messen); } }).observe(hubEl, { childList:true, subtree:true });
 })();
