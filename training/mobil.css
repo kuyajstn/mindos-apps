@@ -47,7 +47,7 @@
    (zweizeiliger Titel + Zahlen + Knopf), sonst bleibt über dem Knopf ein Loch. */
 #hub .tr-hero { display:flex !important; flex-direction:column; align-items:stretch !important; height:204px; min-height:204px !important;
   padding:18px 18px 18px !important; border-radius:22px; }
-#hub .tr-htext { flex:1; display:flex; flex-direction:column; align-items:flex-start; }
+#hub .tr-htext { flex:1; display:flex; flex-direction:column; align-items:flex-start; padding-left:0; }
 #hub .tr-hero.mit-koerper .tr-htext > h2, #hub .tr-hero.mit-koerper .tr-htext > .meta { max-width:calc(100% - 138px); }
 #hub .tr-hero h2 { font-size:31px; margin:4px 0 8px; }
 #hub .tr-hero .meta b.num { font-size:20px; }
