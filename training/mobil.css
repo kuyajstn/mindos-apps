@@ -27,7 +27,7 @@
 /* Die Unschärfe liegt auf ::before, nicht auf der Zeile selbst (13.10.): Safari am iPhone ließ bei einer angehefteten Zeile
    mit backdrop-filter beim Scrollen den Inhalt verschwinden, übrig blieb nur die unscharfe Fläche. */
 /* Fest statt angeheftet (13.10.): Safari am iPhone verlor bei sticky beim Scrollen nach und nach den Inhalt der Zeile.
-   Den Platz darüber hält --kopf-h frei, das app.js an der echten Höhe misst. */
+   Den Platz darunter hält --kopf-rest frei (s. .tr-main). */
 #hub .tr-top { position:fixed; top:0; left:0; right:0; z-index:30; min-height:0; padding:calc(var(--sa-o) + 10px) 18px 10px !important; background:none !important; }
 /* Oberer Rand der Kopfzeile (sa-o + 10 px) kommt aus dem CSS, gemessen wird nur der Rest (--kopf-rest, app.js):
    Beim Start kennt Safari den Rand der Statusleiste manchmal noch nicht, eine Messung der ganzen Höhe war dann zu klein. */
