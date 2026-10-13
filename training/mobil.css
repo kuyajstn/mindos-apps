@@ -30,11 +30,12 @@
 #hub .tr-top .frage { display:none; }
 #hub .tr-top .frage.datum { display:block; margin:3px 0 0 -4px; font-size:14px; color:var(--tx3); white-space:nowrap; }
 #hub .tr-chip { margin-left:auto; }
-/* Die Meldung des Hubs („✓ geloggt") als Hinweis unter der Kopfzeile statt eingequetscht daneben. */
-#hub .tr-hint { position:fixed; z-index:60; left:16px; right:16px; top:calc(var(--sa-o) + 62px); margin:0; text-align:center;
-  font-size:13.5px; font-weight:600; padding:11px 14px; border-radius:14px; pointer-events:none;
-  background:#0f2a1c; border:1px solid rgba(52,210,123,.35); transform:translateY(-6px); transition:opacity .18s, transform .18s; }
-#hub .tr-hint.an { transform:none; }
+/* Die Meldung des Hubs („✓ geloggt“, Fehler) deckt die Kopfzeile ganz ab (seit 13.10.): gleiche Fläche, deckender Grund,
+   nichts scheint durch. Vorher schwebte sie halb über dem Inhalt darunter. */
+#hub .tr-hint { position:absolute; z-index:5; inset:0; margin:0 !important; display:flex; align-items:center; justify-content:center;
+  padding:var(--sa-o) 18px 0 !important; font-size:15px; font-weight:650; text-align:center; border-radius:0 !important; pointer-events:none;
+  background:#0f2a1c; border:0 !important; border-bottom:1px solid rgba(52,210,123,.35) !important; transition:opacity .18s; }
+#hub .tr-hint.fehler { background:#2a1114; border-bottom-color:#5a1f24 !important; }
 
 #hub .tr-body { padding:14px 14px calc(var(--sa-u) + 92px) !important; gap:14px !important; }
 
