@@ -24,6 +24,9 @@ Der Schlüssel (`tr-konf`) gilt für beide, alles andere im Speicher trägt das 
 - `MindOS/02 Life OS/1. Agent — Life OS.md`, Abschnitt Training Hub: was der Hub-Code einhalten muss,
   damit er auch hier läuft. (Für den Kitchen Hub nachziehen, sobald die Küche ausgerollt ist.)
 
+**Wie sich die Apps anfühlen sollen** (Schließen und Zurück, Gesten, Tastatur, ein Zeichen je Sache) steht in
+`MindOS/04 Knowledge/MindOS Design-Prinzipien für Apps.md`. Hier steht nur die Technik dahinter.
+
 ## Was beim Ändern zählt
 
 - **Benutzt der Hub eine neue Obsidian-Funktion, stürzt die App ab**, bis sie in `shim()` in `app.js`
@@ -53,7 +56,7 @@ Der Schlüssel (`tr-konf`) gilt für beide, alles andere im Speicher trägt das 
   klebt, schrumpft beim Filtern von oben, und das Suchfeld rutscht hinter die Tastatur. `app.js` setzt deshalb `--vv-h`, `--vv-o`
   und `html.tastatur`, die `mobil.css` setzt das Blatt damit fest (Küche: `#ml-prep-modal`). Solange ein Textfeld im Hub den Fokus
   hat, behält `#hub` seine Höhe (Suche in der Seite, sonst springt das Scrollen). **Neues Blatt mit Suchfeld → dieselbe Regel
-  in dessen `mobil.css`.** Ohne iPhone nur nachzustellen: `html.tastatur` und `--vv-h:480px` von Hand setzen, dann tippen und messen.
+  in dessen `mobil.css`.** Das Training hat sie seit 13.10. ebenso (Blatt `.tr-modal`, außer beim Lauf, und der Abschließen-Dialog `.tr-ldlg`). Ohne iPhone nur nachzustellen: `html.tastatur` und `--vv-h:480px` von Hand setzen, dann tippen und messen.
 - **Prüfen ohne echte Daten:** `node werkzeug/testserver.mjs` liest aus dem Vault, Schreiben ist gesperrt. **Port 8787 kann belegt sein**, von einer parallelen Sitzung mit Vault-Kopie: Dann liefert er nicht den aktuellen Hub. Prüfen mit `ps` und eigenen Port nehmen (`PORT=8788 node werkzeug/testserver.mjs`).
   Schreibtests nur gegen eine Kopie: `SCHREIBEN=1 VAULT=/tmp/vault-kopie node werkzeug/testserver.mjs`,
   Funkloch dazu mit `OHNE_NETZ=1`. Bildschirmfoto in iPhone-Breite: `werkzeug/rahmen.html`
