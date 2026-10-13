@@ -41,30 +41,37 @@
 /* Held: Text links, Figuren rechts in der Bewegung, Knöpfe in voller Breite darunter (seit 13.10.).
    Vorher klebten kleine Figuren oben in der Ecke und die Bewegung war bis auf einen Rest ausgeblendet.
    Jetzt wie am Mac, nur kleiner: Figuren groß genug, dass die Bewegung um sie herum lesbar ist. */
-/* Feste Höhe wie am Mac (seit 12.10.): Sonst wuchs die Karte bei zweizeiligen Titeln, und die Bewegung
-   dahinter verrutschte mit. Die Knöpfe stehen immer unten, nur der Text darüber rückt. */
-#hub .tr-hero { display:flex !important; flex-direction:column; align-items:stretch !important; min-height:244px !important; padding:20px 18px 18px !important; border-radius:22px; }
+/* Heute-Karte (seit 13.10., Entwurf `mindos-entwuerfe/training-heute-karte-iphone.html`): Titel und Zahlen als
+   Block oben, ein kleiner Knopf unten links, die Figuren rechts mittig in der Bewegung. Feste Höhe, damit beim
+   Durchklicken der Woche Rahmen, Figuren und Knopf stehen bleiben; 204 passt genau auf den längsten Inhalt
+   (zweizeiliger Titel + Zahlen + Knopf), sonst bleibt über dem Knopf ein Loch. */
+#hub .tr-hero { display:flex !important; flex-direction:column; align-items:stretch !important; height:204px; min-height:204px !important;
+  padding:18px 18px 18px !important; border-radius:22px; }
 #hub .tr-htext { flex:1; display:flex; flex-direction:column; align-items:flex-start; }
-#hub .tr-hero.mit-koerper .tr-htext > small, #hub .tr-hero.mit-koerper .tr-htext > h2,
-#hub .tr-hero.mit-koerper .tr-htext > .meta { max-width:calc(100% - 138px); }
-#hub .tr-hero h2 { font-size:31px; margin:9px 0 10px; }
-#hub .tr-koerper { display:block !important; position:absolute; top:18px; right:14px; }
+#hub .tr-hero.mit-koerper .tr-htext > h2, #hub .tr-hero.mit-koerper .tr-htext > .meta { max-width:calc(100% - 138px); }
+#hub .tr-hero h2 { font-size:31px; margin:4px 0 8px; }
+#hub .tr-hero .meta b.num { font-size:20px; }
+#hub .tr-hero .meta { gap:6px 12px !important; flex-wrap:nowrap; white-space:nowrap; }
+#hub .tr-koerper { display:block !important; position:absolute; top:50%; right:14px; transform:translateY(-50%); }
 #hub .tr-figuren { gap:6px; }
 #hub .tr-figuren svg { width:60px; height:135px; }
 /* Fokus-Motive (Druck, Zug, Pump, Seil) auf die Figuren zentriert, im selben Verhältnis wie am Mac. */
 #hub .tr-fx.fokus { transform:translate(-50%,-50%) scale(.7) !important;
   -webkit-mask-image:radial-gradient(ellipse 50% 50% at 50% 50%, #000 40%, transparent 80%);
           mask-image:radial-gradient(ellipse 50% 50% at 50% 50%, #000 40%, transparent 80%); }
-/* Flächige Motive (Boden, Wasser, Tempo) nur über den Knöpfen, damit sie auf Höhe der Füße liegen —
-   die Schwimmer stehen im Wasser. Unter dem Text nur ein Hauch, wie am Mac. */
-#hub .tr-hero .tr-fx:not(.fokus) { inset:0 0 56px 0 !important;
+/* Flächige Motive (Boden, Wasser, Tempo) über die ganze Karte, unter dem Text nur ein Hauch, nach unten weich aus. */
+#hub .tr-hero .tr-fx:not(.fokus) { inset:0 !important;
   -webkit-mask-image:linear-gradient(90deg, rgba(0,0,0,.07) 0%, rgba(0,0,0,.07) 38%, #000 66%), linear-gradient(180deg, #000 72%, transparent 100%) !important;
   -webkit-mask-composite:source-in;
           mask-image:linear-gradient(90deg, rgba(0,0,0,.07) 0%, rgba(0,0,0,.07) 38%, #000 66%), linear-gradient(180deg, #000 72%, transparent 100%) !important;
           mask-composite:intersect; }
-#hub .tr-hero .akt { align-self:stretch; margin-top:auto; padding-top:18px; gap:8px; }
-#hub .tr-hero .akt > * { flex:1 1 auto; justify-content:center; min-height:46px; }
+#hub .tr-hero .akt { align-self:flex-start; margin-top:auto; padding-top:12px; gap:8px; }
+#hub .tr-hero .akt > * { flex:0 0 auto; padding:0 22px !important; min-height:44px; justify-content:center; }
+/* Die Mindest-Variante (20 Min Seil) passt am Handy nicht neben „Loggen“, ohne in die Figuren zu ragen.
+   Erreichbar bleibt sie über „Einheit nachtragen“. */
+#hub .tr-hero .akt .ersatz { display:none !important; }
 #hub .tr-cta, #hub .tr-ghost, #hub .tr-fertig { font-size:15px !important; min-height:46px; justify-content:center; }
+#hub .tr-top .tr-erledigt { margin:3px 0 0 -4px; }
 
 /* Wochenleiste: sieben schmale Spalten. */
 #hub .tr-wl { gap:5px; }
