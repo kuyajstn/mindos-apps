@@ -1145,6 +1145,7 @@ if (konf()) start(); else einrichten();
       e.preventDefault();
       g.dy = Math.max(0, t.clientY - g.y0);
       g.d.style.transform = `translateY(${g.dy}px)`;
+      (g.spur ??= []).push({ t:Date.now(), y:t.clientY }); if (g.spur.length > 20) g.spur.shift();
       return;
     }
     // Im Blatt scrollen, aber am Anfang oder Ende nie an den Hintergrund weiterreichen.
@@ -1157,7 +1158,13 @@ if (konf()) start(); else einrichten();
     if (!g || g.modus !== 'zug') { g = null; return; }
     // Ein Tipp mit etwas Zittern ist kein Zug: Klicks nur nach einem echten Zug schlucken, sonst gingen Felder und Knöpfe nicht mehr.
     const z = g; g = null; if (z.dy > 10) klickSperre = Date.now();
-    const v = z.dy / Math.max(1, Date.now() - z.t), weg = z.dy > 120 || (z.dy > 40 && v > .6);
+    // Wie bei iOS (Justin, 13.10.): Es zählt die Bewegung beim Loslassen, nicht der zurückgelegte Weg.
+    // Tempo über die letzten 100 ms; wer vor dem Loslassen anhält, hat Tempo 0. Schneller Wisch nach unten → zu.
+    // Angehalten → zu nur, wenn das Blatt schon über die Hälfte aus dem Bild ist. Finger zurück nach oben → nie zu.
+    const jetzt = Date.now(), spur = z.spur || [], letzte = spur[spur.length - 1];
+    const ab = spur.find(p => p.t >= jetzt - 100);
+    const v = !letzte || jetzt - letzte.t > 100 || !ab || ab === letzte ? 0 : (letzte.y - ab.y) / Math.max(1, letzte.t - ab.t);
+    const weg = v < -0.1 ? false : (v > 0.5 && z.dy > 20) || z.dy > z.d.offsetHeight / 2;
     z.d.style.transition = 'transform .22s cubic-bezier(.2,.8,.2,1)';
     if (!weg) { z.d.style.transform = ''; return; }
     z.d.style.transform = `translateY(${z.d.offsetHeight}px)`;
