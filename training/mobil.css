@@ -42,7 +42,7 @@
 /* Held: Text links, Figuren rechts in der Bewegung, Knöpfe in voller Breite darunter (seit 13.10.).
    Vorher klebten kleine Figuren oben in der Ecke und die Bewegung war bis auf einen Rest ausgeblendet.
    Jetzt wie am Mac, nur kleiner: Figuren groß genug, dass die Bewegung um sie herum lesbar ist. */
-/* Heute-Karte (seit 13.10., Entwurf `mindos-entwuerfe/training-heute-karte-iphone.html`): Titel und Zahlen als
+/* Heute-Karte (seit 13.10.): Titel und Zahlen als
    Block oben, ein kleiner Knopf unten links, die Figuren rechts mittig in der Bewegung. Feste Höhe, damit beim
    Durchklicken der Woche Rahmen, Figuren und Knopf stehen bleiben; 204 passt genau auf den längsten Inhalt
    (zweizeiliger Titel + Zahlen + Knopf), sonst bleibt über dem Knopf ein Loch. */
