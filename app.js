@@ -28,6 +28,14 @@ const ORDNER  = APP.ordner;
 const DEV = ['localhost', '127.0.0.1'].includes(location.hostname);
 // Startbildschirm-App am iPhone: --app-h statt 100dvh (basis.css, iOS-26-Fehler mit zu kurzer Seite beim Start).
 if (navigator.standalone) document.documentElement.classList.add('ios-app');
+// Zweiter Teil desselben Fehlers (13.10., an Screenshots gemessen): Sobald Safari nach dem ersten Scrollen auf die volle Höhe
+// umschaltet (innerHeight 812, clientHeight bleibt 762), zeichnet es die Seite um genau diesen Unterschied zu weit oben,
+// feste Elemente aber richtig. Der Inhalt rutschte unter die feste Kopfzeile. --doc-versatz gleicht das aus (mobil.css).
+if (navigator.standalone) {
+  const versatz = () => { const d = Math.round(innerHeight - document.documentElement.clientHeight);
+    document.documentElement.style.setProperty('--doc-versatz', `${d > 8 ? d : 0}px`); };
+  addEventListener('resize', versatz); window.visualViewport?.addEventListener('resize', versatz); versatz();
+}
 const API = DEV ? '/gh' : 'https://api.github.com';
 // Der Schlüssel (tr-konf) gilt für alle Apps, der Rest ist je App getrennt.
 const K_KONF = 'tr-konf', K_CACHE = `${APP.praefix}-cache`, K_WARTE = `${APP.praefix}-warte`,
