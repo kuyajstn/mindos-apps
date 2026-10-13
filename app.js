@@ -1030,7 +1030,22 @@ async function start() {
   if (dateien[HUB]) hubStarten();             // sofort aus dem Cache, auch ohne Netz
   if (await laden() || !hubEl.firstChild) hubStarten();
   if (DEV) testKlick();
+  anstossen();
 }
+
+// Leiste unten zu hoch beim Öffnen (13.10.): Safari am iPhone legt die Seite einer Startbildschirm-App beim Start
+// ohne den unteren Sicherheitsrand an, eine fest unten stehende Leiste schwebt dann darüber. Erst Scrollen
+// rechnet neu. Deshalb einmal um einen Pixel scrollen und zurück, beim Start und beim Zurückkehren in die App.
+function anstossen() {
+  requestAnimationFrame(() => {
+    if (window.scrollY > 0) return;
+    const h = document.documentElement;
+    if (h.scrollHeight <= innerHeight) { h.style.minHeight = `calc(100% + 1px)`; }
+    window.scrollTo(0, 1);
+    requestAnimationFrame(() => { window.scrollTo(0, 0); h.style.minHeight = ''; });
+  });
+}
+window.addEventListener('pageshow', anstossen);
 
 // Nur im Testmodus: Ansicht und Klick per Adresse, für Bildschirmfotos ohne Schreiben.
 function testKlick() {
@@ -1053,6 +1068,7 @@ const tagHeute = () => new Date().toDateString();
 let tagGestartet = tagHeute();
 document.addEventListener('visibilitychange', () => {
   if (document.visibilityState !== 'visible' || !konf()) return;
+  anstossen();
   laden().then(g => { if (g || tagGestartet !== tagHeute()) { tagGestartet = tagHeute(); hubStarten(); } });
 });
 

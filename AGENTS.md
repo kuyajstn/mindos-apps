@@ -51,6 +51,7 @@ Der Schlüssel (`tr-konf`) gilt für beide, alles andere im Speicher trägt das 
 - **Neuaufbau nach dem Schreiben wartet auf den Dialog (seit 11.10.):** `neuStarten` baut erst neu auf, wenn `APP.wartet()`
   nein sagt (Küche: `#ml-prep-modal` offen), höchstens nach 1,6 s. Vorher riss der Neuaufbau den Dialog nach 60 ms weg,
   die Meldung „… eingetragen“ war nie zu sehen. Eine App ohne `wartet` baut wie bisher nach 60 ms neu auf.
+- **Safari-Eigenheiten am iPhone (seit 13.10., `apps-v29`):** Eine angeheftete Kopfzeile trägt ihre Unschärfe auf `::before`, nie selbst (`backdrop-filter` auf einem `sticky`-Element ließ beim Scrollen den Inhalt verschwinden). Beim Start und beim Zurückkehren scrollt `anstossen()` einmal um einen Pixel, weil die Leiste unten sonst über dem Sicherheitsrand schwebt, bis man selbst scrollt. Beides am Mac nicht nachstellbar, nur am iPhone prüfbar.
 - **Kein Zoomen (seit 13.10.):** Viewport `maximum-scale=1, user-scalable=no` in jeder `index.html`, `touch-action:pan-x pan-y` in `basis.css` und `gesturestart` abgefangen in `app.js`. iOS ignoriert den Viewport allein. Eine neue App braucht den Viewport-Eintrag ebenso. **Kein Markieren (seit 13.10.):** `user-select:none` auf `html` in `basis.css`, Eingabefelder ausgenommen.
 - **Tastatur am iPhone (seit 11.10.):** Sie verkleinert nur den sichtbaren Ausschnitt, nicht die Seite. Ein Blatt, das unten
   klebt, schrumpft beim Filtern von oben, und das Suchfeld rutscht hinter die Tastatur. `app.js` setzt deshalb `--vv-h`, `--vv-o`

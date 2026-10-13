@@ -24,7 +24,10 @@
 #hub .tr-ni .tr-dot { position:absolute; top:5px; left:calc(50% + 9px); margin:0; }
 
 /* Kopfzeile: oben angeheftet, unter der Statusleiste des iPhones. */
-#hub .tr-top { position:sticky; top:0; z-index:30; min-height:0; padding:calc(var(--sa-o) + 10px) 18px 10px !important;
+/* Die Unschärfe liegt auf ::before, nicht auf der Zeile selbst (13.10.): Safari am iPhone ließ bei einer angehefteten Zeile
+   mit backdrop-filter beim Scrollen den Inhalt verschwinden, übrig blieb nur die unscharfe Fläche. */
+#hub .tr-top { position:sticky; top:0; z-index:30; min-height:0; padding:calc(var(--sa-o) + 10px) 18px 10px !important; background:none !important; }
+#hub .tr-top::before { content:''; position:absolute; inset:0; z-index:-1; pointer-events:none;
   background:rgba(12,12,15,.86); -webkit-backdrop-filter:blur(18px); backdrop-filter:blur(18px); }
 #hub .tr-top h1 { font-size:26px; letter-spacing:-.02em; }
 #hub .tr-top .frage { display:none; }
