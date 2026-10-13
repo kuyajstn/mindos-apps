@@ -182,3 +182,10 @@ html.rad-auf #hub .tr-dlg { padding-bottom:calc(var(--sa-u) + 360px) !important;
 /* Freies Training und Körper als Blatt: Kacheln und Import fingerbreit. */
 #hub .tr-kachel { min-height:96px; }
 #hub .tr-import { min-height:56px; }
+
+/* Tastatur offen (13.10., wie die Küche: app.js setzt .tastatur, --vv-h, --vv-o): Das Blatt sitzt über der Tastatur
+   statt dahinter, der Abschließen-Dialog in der Mitte des sichtbaren Bereichs. */
+html.tastatur #hub .tr-modal:not(:has(.tr-dlg.lauf)) { top:var(--vv-o) !important; bottom:auto !important; height:var(--vv-h) !important; }
+html.tastatur #hub .tr-dlg:not(.lauf) { max-height:calc(var(--vv-h) - 8px) !important; }
+html.tastatur #hub .tr-ldlg { top:calc(var(--vv-o) + var(--vv-h) / 2) !important; }
+.rad-weg svg { width:21px; height:21px; stroke-width:1.8; }

@@ -858,7 +858,8 @@ const KG_REST = ['00', '25', '50', '75'];
 const RAD_IC = {
   zu:   '<path d="M6 9l6 6 6-6"/>',
   skip: '<path d="M4 15a8 8 0 0 1 15-3.5"/><path d="M20 6v6h-6"/><circle cx="12" cy="17" r="1.4"/>',
-  weg:  '<path d="M4 7h16M9 7V4h6v3M6.5 7l1 13h9l1-13M10 11v6M14 11v6"/>',
+  // Mülleimer seit 13.10. mit Deckelgriff und rundem Korb, dünner gezeichnet (mobil.css): Der alte wirkte wie ein Klotz.
+  weg:  '<path d="M3.5 6.5h17"/><path d="M8.5 6.5V4.8c0-.7.6-1.3 1.3-1.3h4.4c.7 0 1.3.6 1.3 1.3v1.7"/><path d="M5.8 6.5l.9 12.6c.1 1 .9 1.9 2 1.9h6.6c1.1 0 1.9-.9 2-1.9l.9-12.6"/><path d="M10 10.5v6.5M14 10.5v6.5"/>',
   ok:   '<path d="M5 12.5l4.5 4.5L19 7.5"/>',
 };
 const radIc = n => `<svg viewBox="0 0 24 24">${RAD_IC[n]}</svg>`;
