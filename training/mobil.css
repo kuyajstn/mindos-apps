@@ -7,11 +7,11 @@
 /* Container-Abfragen des Hubs aus: Die Hülle wäre sonst Bezugsrahmen für alles Feste
    (Leiste unten, Dialog), und am Handy gilt das schmale Layout ohnehin immer. */
 #hub .tr-wrap { container-type:normal !important; }
-#hub .tr { display:block !important; min-height:100dvh; border:0 !important; border-radius:0 !important;
+#hub .tr { display:block !important; min-height:var(--app-h); border:0 !important; border-radius:0 !important;
   overflow:visible !important; --round:ui-rounded,"SF Pro Rounded",-apple-system,sans-serif; font-size:14.5px; }
 
 /* Leiste unten statt Seitenleiste: vier Ansichten, Symbol über Wort. */
-#hub .tr-side { position:fixed; z-index:40; left:0; right:0; bottom:0; display:block; padding:6px 8px calc(var(--sa-u) + 4px) !important;
+#hub .tr-side { position:fixed; z-index:40; left:0; right:0; top:var(--app-h); transform:translateY(-100%); display:block; padding:6px 8px calc(var(--sa-u) + 4px) !important;
   background:rgba(10,10,13,.86); -webkit-backdrop-filter:blur(18px) saturate(1.4); backdrop-filter:blur(18px) saturate(1.4);
   border:0 !important; border-top:1px solid rgba(255,255,255,.08) !important; }
 #hub .tr-ws, #hub .tr-apps, #hub .tr-h, #hub .tr-nav [data-plan] { display:none !important; }
@@ -104,7 +104,7 @@
 #hub .tr-ex .kg { min-width:64px; font-size:16px; }
 
 /* Dialog als Blatt von unten. 16 px in Eingabefeldern, sonst zoomt das iPhone hinein. */
-#hub .tr-modal { position:fixed !important; align-items:flex-end !important; padding:0 !important; z-index:70; }
+#hub .tr-modal { position:fixed !important; align-items:flex-end !important; padding:0 !important; z-index:70; bottom:auto !important; height:var(--app-h); }
 #hub .tr-dlg { width:100% !important; max-height:90dvh; overflow:auto; border-radius:24px 24px 0 0 !important;
   padding:20px 18px calc(var(--sa-u) + 18px) !important; border-bottom:0; }
 /* Schließen-Kreuz: am Mac ein kleines ✕, am Handy eine runde Fläche mit 44 px Trefferzone (Apples Mindestmaß). */
@@ -115,7 +115,7 @@
 #hub .tr-in { font-size:16px !important; padding:10px 11px !important; }
 /* Satz für Satz (seit 12.10.): Der Lauf füllt den Bildschirm. Statt Feldern steht der Wert groß da,
    eingegeben wird über das Rad; die Felder bleiben unsichtbar, das Rad füllt sie. */
-#hub .tr-dlg.lauf { max-height:none; height:100dvh; border-radius:0 !important; border:0 !important;
+#hub .tr-dlg.lauf { max-height:none; height:var(--app-h); border-radius:0 !important; border:0 !important;
   padding:0 16px calc(var(--sa-u) + 24px) !important; }
 /* Kopf mit Abschließen bleibt oben stehen, auch wenn das Rad den Satz nach oben schiebt. */
 #hub .tr-lhead { position:sticky; top:0; z-index:3; margin:0 -16px; padding:calc(var(--sa-o) + 8px) 16px 0; background:var(--panel); }
@@ -145,7 +145,7 @@ html.rad-auf #hub .tr-dlg { padding-bottom:calc(var(--sa-u) + 360px) !important;
 #hub .tr-wahl button { min-height:48px; font-size:15px; }
 
 /* ── Rad: Blatt unten über dem Lauf, ohne Abdunkeln ─────────────── */
-#rad { position:fixed; left:0; right:0; bottom:0; z-index:95; }
+#rad { position:fixed; left:0; right:0; top:var(--app-h); transform:translateY(-100%); z-index:95; }
 .rad-blatt { box-sizing:border-box; width:100%; background:#1a1a20; border-top:1px solid rgba(255,255,255,.1); border-radius:22px 22px 0 0;
   padding:12px 14px calc(var(--sa-u) + 12px); box-shadow:0 -20px 50px rgba(0,0,0,.6); animation:rad-rein .22s cubic-bezier(.2,.8,.2,1); }
 @keyframes rad-rein { from { transform:translateY(40px); opacity:0; } to { transform:none; opacity:1; } }
@@ -182,6 +182,7 @@ html.rad-auf #hub .tr-dlg { padding-bottom:calc(var(--sa-u) + 360px) !important;
 #hub .tr-verlauf { display:flex !important; }
 /* Lauf: Kurve und Übersicht in voller Breite; der Abschließen-Dialog liegt über dem Rad. */
 #hub .tr-ldlg-schleier, #hub .tr-ldlg { position:fixed; }
+#hub .tr-ldlg-schleier { bottom:auto; height:var(--app-h); } #hub .tr-ldlg { top:calc(var(--app-h) / 2); }
 #hub .tr-ldlg-schleier { z-index:110; } #hub .tr-ldlg { z-index:111; }
 #hub .tr-ldlg .tr-in { font-size:16px !important; }
 #hub .tr-lchart { padding:14px 14px 12px; }

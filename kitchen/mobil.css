@@ -7,7 +7,7 @@
 html, body { background:#0A0908; }
 
 /* Fläche: randlos, unten Platz für die Leiste. overflow sichtbar, sonst klebt der Kopf nicht. */
-#hub .kh { border-radius:0 !important; border:0 !important; overflow:visible !important; min-height:100dvh;
+#hub .kh { border-radius:0 !important; border:0 !important; overflow:visible !important; min-height:var(--app-h);
   padding:0 14px calc(var(--sa-u) + 86px) !important; box-sizing:border-box; }
 
 /* Kopf „Kitchen“ mit Glocke: am Handy weg (Justin, 10.10.). Die Glocke bleibt am Mac, ihre Knöpfe
@@ -29,7 +29,7 @@ html, body { background:#0A0908; }
 #hub .kt-top:has(.kt-pill-wrap.is-auf) { z-index:47; }
 
 /* Leiste unten statt Pillen oben: drei Reiter, Symbol über Wort. */
-#hub .kh-tabs { position:fixed; z-index:40; left:0; right:0; bottom:0; margin:0 !important; display:grid !important;
+#hub .kh-tabs { position:fixed; z-index:40; left:0; right:0; top:var(--app-h); transform:translateY(-100%); margin:0 !important; display:grid !important;
   grid-template-columns:repeat(3, 1fr); gap:0 !important; padding:6px 8px calc(var(--sa-u) + 4px) !important;
   background:rgba(10,9,8,.88); -webkit-backdrop-filter:blur(18px) saturate(1.3); backdrop-filter:blur(18px) saturate(1.3);
   border:0 !important; border-top:1px solid rgba(255,255,255,.07) !important; }
@@ -45,7 +45,7 @@ html, body { background:#0A0908; }
 #hub .kh-seg-btn { flex:1; text-align:center; min-height:34px; display:flex; align-items:center; justify-content:center; }
 
 /* Dialog als Blatt von unten, am Bildschirm statt an der Hub-Fläche. */
-#hub #ml-prep-modal { position:fixed !important; inset:0; z-index:70; border-radius:0 !important;
+#hub #ml-prep-modal { position:fixed !important; inset:0; bottom:auto; height:var(--app-h); z-index:70; border-radius:0 !important;
   align-items:flex-end !important; justify-content:stretch !important; }
 #hub .kh #ml-prep-inner { width:100% !important; max-width:none !important; max-height:90dvh; overflow:auto; box-sizing:border-box;
   border-radius:24px 24px 0 0 !important; border-bottom:0 !important; padding:20px 16px calc(var(--sa-u) + 18px) !important;

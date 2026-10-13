@@ -24,7 +24,7 @@ input, textarea, [contenteditable="true"] { -webkit-user-select:text; user-selec
 #status.fehler { color:#ffb4ab; background:#2a1114; border-color:#5a1f24; }
 .ta-fehler { margin:16px; padding:14px 16px; border-radius:14px; background:#2a1114; border:1px solid #5a1f24; color:#ffb4ab; font-size:14px; }
 
-#einrichten { min-height:100dvh; display:grid; place-items:center; padding:24px; box-sizing:border-box; }
+#einrichten { min-height:var(--app-h); display:grid; place-items:center; padding:24px; box-sizing:border-box; }
 #einrichten[hidden] { display:none; }
 .ein-karte { width:100%; max-width:380px; display:flex; flex-direction:column; align-items:center; gap:14px; text-align:center; }
 .ein-av { width:64px; height:64px; border-radius:18px; display:grid; place-items:center; background:linear-gradient(150deg,var(--app-a,#ff5e3a),var(--app-b,#c02318));
@@ -42,7 +42,7 @@ input, textarea, [contenteditable="true"] { -webkit-user-select:text; user-selec
 
 
 /* ── Leser: eine Notiz als Blatt von unten (Rezept antippen → Rezeptnotiz) ── */
-#leser { position:fixed; inset:0; z-index:90; background:rgba(0,0,0,.55); display:flex; align-items:flex-end;
+#leser { position:fixed; inset:0; bottom:auto; height:var(--app-h); z-index:90; background:rgba(0,0,0,.55); display:flex; align-items:flex-end;
   -webkit-backdrop-filter:blur(3px); backdrop-filter:blur(3px); animation:le-ein .18s ease-out; }
 @keyframes le-ein { from { opacity:0; } }
 body.le-offen { overflow:hidden; }
@@ -54,6 +54,11 @@ body.le-offen { overflow:hidden; }
 /* Kopfknöpfe (✕ ‹ ⌄ ✓) in allen Apps gleich: 40 px, abgerundet wie Kacheln und Felder (Justin, 13.10.).
    Rund bleibt nur, was in Zeilen sitzt (+ bei Rezepten) und die Knöpfe im Rad. */
 :root { --kopf-r:13px; }
+/* iOS-26-Fehler (13.10., gemessen): Eine Startbildschirm-App bekommt beim Start eine um die Statusleiste zu kurze
+   Seite (innerHeight 763 statt 812), bis man scrollt. Alles, was am unteren Rand hängt, schwebte dann darüber.
+   Deshalb hängt nichts mehr an bottom:0: Leisten und Blätter stehen von oben, mit dieser Höhe. app.js setzt ios-app. */
+:root { --app-h:100dvh; }
+html.ios-app { --app-h:min(100lvh, calc(100dvh + env(safe-area-inset-top))); }
 .le-zu { flex:none; width:40px; height:40px; display:grid; place-items:center; padding:0; border-radius:var(--kopf-r); border:0; background:#26231f; color:#b0a79c; font:600 15px -apple-system,sans-serif; position:relative; }
 .le-zu svg { width:20px; height:20px; }
 .le-zu::after { content:''; position:absolute; inset:-5px; }

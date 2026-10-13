@@ -26,6 +26,8 @@ const DATEIEN = [HUB, ...APP.dateien];
 const ORDNER  = APP.ordner;
 
 const DEV = ['localhost', '127.0.0.1'].includes(location.hostname);
+// Startbildschirm-App am iPhone: --app-h statt 100dvh (basis.css, iOS-26-Fehler mit zu kurzer Seite beim Start).
+if (navigator.standalone) document.documentElement.classList.add('ios-app');
 const API = DEV ? '/gh' : 'https://api.github.com';
 // Der Schlüssel (tr-konf) gilt für alle Apps, der Rest ist je App getrennt.
 const K_KONF = 'tr-konf', K_CACHE = `${APP.praefix}-cache`, K_WARTE = `${APP.praefix}-warte`,
@@ -1030,7 +1032,6 @@ async function start() {
   if (dateien[HUB]) hubStarten();             // sofort aus dem Cache, auch ohne Netz
   if (await laden() || !hubEl.firstChild) hubStarten();
   if (DEV) testKlick();
-  anstossen();
 }
 
 // Höhe der festen Kopfzeile als --kopf-h (13.10.): Die Kopfzeile steht fest (fixed) statt angeheftet,
@@ -1044,33 +1045,17 @@ async function start() {
   new MutationObserver(() => { if (!geplant) { geplant = true; requestAnimationFrame(messen); } }).observe(hubEl, { childList:true, subtree:true });
 })();
 
-// Leiste unten zu hoch beim Öffnen (13.10.): Safari am iPhone legt die Seite einer Startbildschirm-App beim Start
-// ohne den unteren Sicherheitsrand an, eine fest unten stehende Leiste schwebt dann darüber. Erst Scrollen
-// rechnet neu. Deshalb einmal um einen Pixel scrollen und zurück, beim Start und beim Zurückkehren in die App.
-function anstossen() {
-  [0, 300, 1000, 2500].forEach(ms => setTimeout(anstossenEinmal, ms));
-}
-function anstossenEinmal() {
-  requestAnimationFrame(() => {
-    if (window.scrollY > 0) return;
-    const h = document.documentElement;
-    if (h.scrollHeight <= innerHeight) { h.style.minHeight = `calc(100% + 1px)`; }
-    window.scrollTo(0, 1);
-    requestAnimationFrame(() => { window.scrollTo(0, 0); h.style.minHeight = ''; });
-  });
-}
-window.addEventListener('pageshow', anstossen);
 
 // VORÜBERGEHEND (13.10.): Messanzeige nur in der Startbildschirm-App, um den Fehler der Leiste unten am iPhone zu messen.
 // Zeigt, was Safari beim Start rechnet. Nach Justins Screenshot wieder entfernen.
 if (navigator.standalone) {
   const m = document.createElement('div'), probe = document.createElement('div');
   m.style.cssText = 'position:fixed;z-index:999;left:50%;transform:translateX(-50%);top:calc(env(safe-area-inset-top) + 2px);font:600 10px ui-monospace,monospace;color:#ff0;background:rgba(0,0,0,.75);padding:3px 6px;border-radius:6px;pointer-events:none;white-space:pre;text-align:left';
-  probe.style.cssText = 'position:fixed;visibility:hidden;padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom)';
+  probe.style.cssText = 'position:fixed;visibility:hidden;box-sizing:border-box;padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom);height:var(--app-h)';
   document.body.append(m, probe);
   const t0 = Date.now(), schreib = () => { const cs = getComputedStyle(probe), leiste = document.querySelector('#hub .tr-side, #hub .kh-tabs');
     m.textContent = `t ${((Date.now() - t0) / 1000).toFixed(1)}s  scr ${screen.height}  inner ${innerHeight}  client ${document.documentElement.clientHeight}\n`
-      + `vv ${Math.round(visualViewport?.height)} @${Math.round(visualViewport?.offsetTop)}  sa ${cs.paddingTop}/${cs.paddingBottom}  leiste ${leiste ? Math.round(leiste.getBoundingClientRect().bottom) : '–'}  y ${Math.round(scrollY)}`; };
+      + `vv ${Math.round(visualViewport?.height)} @${Math.round(visualViewport?.offsetTop)}  sa ${cs.paddingTop}/${cs.paddingBottom}  leiste ${leiste ? Math.round(leiste.getBoundingClientRect().bottom) : '–'}  y ${Math.round(scrollY)}  app ${Math.round(probe.getBoundingClientRect().height)}`; };
   [0, 100, 300, 600, 1000, 2000, 4000].forEach(ms => setTimeout(schreib, ms));
   addEventListener('scroll', schreib, { passive:true }); addEventListener('resize', schreib); visualViewport?.addEventListener('resize', schreib);
 }
@@ -1096,7 +1081,6 @@ const tagHeute = () => new Date().toDateString();
 let tagGestartet = tagHeute();
 document.addEventListener('visibilitychange', () => {
   if (document.visibilityState !== 'visible' || !konf()) return;
-  anstossen();
   laden().then(g => { if (g || tagGestartet !== tagHeute()) { tagGestartet = tagHeute(); hubStarten(); } });
 });
 
