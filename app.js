@@ -1033,10 +1033,24 @@ async function start() {
   anstossen();
 }
 
+// Höhe der festen Kopfzeile als --kopf-h (13.10.): Die Kopfzeile steht fest (fixed) statt angeheftet,
+// der Inhalt darunter braucht ihren Platz frei. Gemessen statt geschätzt, weil sie je Ansicht anders hoch ist.
+(() => {
+  let kopf = null, geplant = false;
+  const messen = () => { geplant = false; const k = document.querySelector('#hub .tr-top, #hub .kt-top');
+    if (k !== kopf) { kopf && ro.unobserve(kopf); kopf = k; k && ro.observe(k); }
+    if (k) document.documentElement.style.setProperty('--kopf-h', `${k.offsetHeight}px`); };
+  const ro = new ResizeObserver(() => messen());
+  new MutationObserver(() => { if (!geplant) { geplant = true; requestAnimationFrame(messen); } }).observe(hubEl, { childList:true, subtree:true });
+})();
+
 // Leiste unten zu hoch beim Öffnen (13.10.): Safari am iPhone legt die Seite einer Startbildschirm-App beim Start
 // ohne den unteren Sicherheitsrand an, eine fest unten stehende Leiste schwebt dann darüber. Erst Scrollen
 // rechnet neu. Deshalb einmal um einen Pixel scrollen und zurück, beim Start und beim Zurückkehren in die App.
 function anstossen() {
+  [0, 300, 1000, 2500].forEach(ms => setTimeout(anstossenEinmal, ms));
+}
+function anstossenEinmal() {
   requestAnimationFrame(() => {
     if (window.scrollY > 0) return;
     const h = document.documentElement;
@@ -1046,6 +1060,20 @@ function anstossen() {
   });
 }
 window.addEventListener('pageshow', anstossen);
+
+// VORÜBERGEHEND (13.10.): Messanzeige nur in der Startbildschirm-App, um den Fehler der Leiste unten am iPhone zu messen.
+// Zeigt, was Safari beim Start rechnet. Nach Justins Screenshot wieder entfernen.
+if (navigator.standalone) {
+  const m = document.createElement('div'), probe = document.createElement('div');
+  m.style.cssText = 'position:fixed;z-index:999;left:50%;transform:translateX(-50%);top:calc(env(safe-area-inset-top) + 2px);font:600 10px ui-monospace,monospace;color:#ff0;background:rgba(0,0,0,.75);padding:3px 6px;border-radius:6px;pointer-events:none;white-space:pre;text-align:left';
+  probe.style.cssText = 'position:fixed;visibility:hidden;padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom)';
+  document.body.append(m, probe);
+  const t0 = Date.now(), schreib = () => { const cs = getComputedStyle(probe), leiste = document.querySelector('#hub .tr-side, #hub .kh-tabs');
+    m.textContent = `t ${((Date.now() - t0) / 1000).toFixed(1)}s  scr ${screen.height}  inner ${innerHeight}  client ${document.documentElement.clientHeight}\n`
+      + `vv ${Math.round(visualViewport?.height)} @${Math.round(visualViewport?.offsetTop)}  sa ${cs.paddingTop}/${cs.paddingBottom}  leiste ${leiste ? Math.round(leiste.getBoundingClientRect().bottom) : '–'}  y ${Math.round(scrollY)}`; };
+  [0, 100, 300, 600, 1000, 2000, 4000].forEach(ms => setTimeout(schreib, ms));
+  addEventListener('scroll', schreib, { passive:true }); addEventListener('resize', schreib); visualViewport?.addEventListener('resize', schreib);
+}
 
 // Nur im Testmodus: Ansicht und Klick per Adresse, für Bildschirmfotos ohne Schreiben.
 function testKlick() {

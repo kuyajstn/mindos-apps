@@ -26,7 +26,10 @@
 /* Kopfzeile: oben angeheftet, unter der Statusleiste des iPhones. */
 /* Die Unschärfe liegt auf ::before, nicht auf der Zeile selbst (13.10.): Safari am iPhone ließ bei einer angehefteten Zeile
    mit backdrop-filter beim Scrollen den Inhalt verschwinden, übrig blieb nur die unscharfe Fläche. */
-#hub .tr-top { position:sticky; top:0; z-index:30; min-height:0; padding:calc(var(--sa-o) + 10px) 18px 10px !important; background:none !important; }
+/* Fest statt angeheftet (13.10.): Safari am iPhone verlor bei sticky beim Scrollen nach und nach den Inhalt der Zeile.
+   Den Platz darüber hält --kopf-h frei, das app.js an der echten Höhe misst. */
+#hub .tr-top { position:fixed; top:0; left:0; right:0; z-index:30; min-height:0; padding:calc(var(--sa-o) + 10px) 18px 10px !important; background:none !important; }
+#hub .tr-main { padding-top:var(--kopf-h, calc(var(--sa-o) + 51px)); }
 #hub .tr-top::before { content:''; position:absolute; inset:0; z-index:-1; pointer-events:none;
   background:rgba(12,12,15,.86); -webkit-backdrop-filter:blur(18px); backdrop-filter:blur(18px); }
 #hub .tr-top h1 { font-size:26px; letter-spacing:-.02em; }

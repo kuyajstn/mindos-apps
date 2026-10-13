@@ -16,7 +16,10 @@ html, body { background:#0A0908; }
 #hub .kh { padding-top:calc(var(--sa-o) + 8px) !important; }
 /* Tageszeile im Tagebuch (Heute · ‹ Serie Kalender ›) ist jetzt die angeheftete Zeile. Der negative
    Rand hebt den Abstand oben auf, damit sie beim Kleben bis unter die Statusleiste reicht. */
-#hub .kt-top { position:sticky; top:0; z-index:30; margin:calc(-1 * (var(--sa-o) + 8px)) -14px 14px !important;
+/* Fest statt angeheftet, wie im Training (13.10.); --kopf-h misst app.js. Der Abstand darunter (14 px) kommt
+   jetzt als Polster auf die Hülle, die oben schon sa-o + 8 px Polster hat. */
+#hub .kt-wrap:has(> .kt-top) { padding-top:calc(var(--kopf-h, calc(var(--sa-o) + 70px)) + 6px - var(--sa-o)); }
+#hub .kt-top { position:fixed; top:0; left:0; right:0; z-index:30; margin:0 !important;
   padding:calc(var(--sa-o) + 8px) 14px 10px !important; background:none !important; }
 /* Unschärfe auf ::before statt auf der angehefteten Zeile, wie im Training (13.10.: Safari ließ sonst den Inhalt verschwinden). */
 #hub .kt-top::before { content:''; position:absolute; inset:0; z-index:-1; pointer-events:none;
