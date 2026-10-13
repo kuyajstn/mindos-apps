@@ -35,6 +35,9 @@ const lies  = k => { try { return JSON.parse(localStorage.getItem(k)); } catch {
 const merke = (k, v) => localStorage.setItem(k, JSON.stringify(v));
 const konf  = () => DEV ? { repo:'dev/vault', branch:'main', token:'' } : lies(K_KONF);
 
+// Kein Zoomen mit zwei Fingern (iOS kennt dafür eigene gesture-Ereignisse, touch-action allein reicht dort nicht).
+['gesturestart', 'gesturechange'].forEach(t => document.addEventListener(t, e => e.preventDefault(), { passive:false }));
+
 // ── Barcode lesen (Kitchen Hub, Stufe 2) ────────────────────────
 // Der Hub liest Barcodes aus Fotos mit BarcodeDetector. Obsidian am Mac hat das eingebaut,
 // Safari am iPhone nicht. Dann steht hier derselbe Name, und erst beim ersten Foto wird der

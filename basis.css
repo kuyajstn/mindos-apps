@@ -8,6 +8,9 @@
 html, body { margin:0; background:#0c0c0f; color:#f2f2f5; -webkit-text-size-adjust:100%; }
 body { font:15px/1.45 -apple-system,BlinkMacSystemFont,sans-serif; -webkit-tap-highlight-color:transparent; overscroll-behavior-y:none; }
 * { -webkit-touch-callout:none; }
+/* Kein Zoomen wie in einer echten App (13.10.): Zwei-Finger- und Doppeltipp-Zoom aus, Scrollen bleibt.
+   iOS ignoriert user-scalable=no im Viewport, deshalb zusätzlich touch-action und gesturestart in app.js. */
+html { touch-action:pan-x pan-y; }
 
 /* ── Eigene Teile der App ──────────────────────────────────────── */
 #status { position:fixed; z-index:80; left:50%; top:calc(var(--sa-o) + 8px); transform:translateX(-50%);
