@@ -51,7 +51,11 @@ body.le-offen { overflow:hidden; }
 @keyframes le-hoch { from { transform:translateY(40px); } }
 .le-kopf { display:flex; align-items:center; gap:12px; padding:16px 16px 10px 20px; }
 .le-kopf b { flex:1; font:700 19px/1.25 -apple-system,sans-serif; letter-spacing:-.01em; }
-.le-zu { flex:none; width:34px; height:34px; border-radius:50%; border:0; background:#26231f; color:#b0a79c; font:600 15px -apple-system,sans-serif; position:relative; }
+/* Kopfknöpfe (✕ ‹ ⌄ ✓) in allen Apps gleich: 40 px, abgerundet wie Kacheln und Felder (Justin, 13.10.).
+   Rund bleibt nur, was in Zeilen sitzt (+ bei Rezepten) und die Knöpfe im Rad. */
+:root { --kopf-r:13px; }
+.le-zu { flex:none; width:40px; height:40px; display:grid; place-items:center; padding:0; border-radius:var(--kopf-r); border:0; background:#26231f; color:#b0a79c; font:600 15px -apple-system,sans-serif; position:relative; }
+.le-zu svg { width:20px; height:20px; }
 .le-zu::after { content:''; position:absolute; inset:-5px; }
 .le-inhalt { overflow:auto; overscroll-behavior:contain; padding:0 20px calc(var(--sa-u) + 28px); font-size:16px; line-height:1.55; }
 .le-banner { display:block; width:100%; aspect-ratio:16/10; object-fit:cover; border-radius:16px; margin:2px 0 14px; }

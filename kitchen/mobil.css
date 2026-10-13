@@ -104,3 +104,9 @@ html.tastatur #hub .kh #ml-prep-inner { height:calc(var(--vv-h) - 12px); max-hei
 #leser .lauf .lauf-port .z { width:30px; }
 #leser .lauf .lauf-port-w { font-size:.8rem; color:var(--tx2); }
 #leser .lauf .lf .lauf-zweit { margin-top:8px; }
+
+/* Kopfknöpfe in beiden Apps gleich (13.10.): 40 px, Form aus basis.css (--kopf-r), Zeichen 20 px */
+#hub .kh button.kh-close, #leser .kh button.kh-close, #hub .kh button.kt-blatt-zu { width:40px; height:40px; border-radius:var(--kopf-r); }
+#hub .kh button.kh-close svg, #leser .kh button.kh-close svg, #hub .kh button.kt-blatt-zu svg { width:20px; height:20px; }
+#hub .kh button.kh-close.kh-x { top:12px; right:12px; }
+#hub #ml-prep-inner > .griff { width:38px; height:5px; border-radius:3px; background:rgba(255,255,255,.2); margin:-6px auto 10px; }

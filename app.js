@@ -669,7 +669,7 @@ function kochlaufOeffnen(pfad, text, fm, bild, zu) {
     // ‹ = einen Schritt zurück (Kochen → Wählen → Lesen); zurück beim Lesen beendet den Lauf.
     // ✕ = nur pausieren: Der Lauf bleibt, bis er fertig, abgebrochen oder 12 Stunden alt ist.
     const zurueck = phase === 'lesen' ? '' : `<button class="kh-close" data-zurueck aria-label="Zurück">${ik.zurueck || '‹'}</button>`;
-    el.innerHTML = `<div class="le-blatt kh lauf" role="dialog" aria-modal="true"><div class="ep-kopf lauf-kopf">${zurueck}${phase === 'lesen' ? '<span style="flex:1"></span>' : '<div class="kf"></div>'}<button class="kh-close" data-zu aria-label="Schließen">✕</button></div><div class="le-inhalt">${inhalt}</div></div>`;
+    el.innerHTML = `<div class="le-blatt kh lauf" role="dialog" aria-modal="true"><div class="ep-kopf lauf-kopf">${zurueck}${phase === 'lesen' ? '<span style="flex:1"></span>' : '<div class="kf"></div>'}<button class="kh-close" data-zu aria-label="Schließen"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/></svg></button></div><div class="le-inhalt">${inhalt}</div></div>`;
     el.querySelector('.le-inhalt').scrollTop = y;
     el.querySelector('[data-zu]').onclick = schliessen;
     if (phase === 'kochen') { el.querySelectorAll('li[data-n]').forEach(li => li.classList.toggle('an', L.haken.includes(li.dataset.n))); balken(false); }
@@ -756,7 +756,7 @@ async function leserOeffnen(pfad) {
     : markdown(d.text));
   const el = document.createElement('div'); el.id = 'leser';
   el.innerHTML = `<div class="le-blatt" role="dialog" aria-modal="true">
-    <div class="le-kopf"><b>${esc(pfad.split('/').pop().replace(/\.md$/, ''))}</b><button class="le-zu" aria-label="Schließen">✕</button></div>
+    <div class="le-kopf"><b>${esc(pfad.split('/').pop().replace(/\.md$/, ''))}</b><button class="le-zu" aria-label="Schließen"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/></svg></button></div>
     <div class="le-inhalt">${titelbild ? `<img class="le-banner" src="${titelbild}" alt="">` : ''}${inhalt}</div></div>`;
   document.body.appendChild(el); document.body.classList.add('le-offen');
   const zu = () => { el.remove(); document.body.classList.remove('le-offen'); wachSperre?.release().catch(() => {}); wachSperre = null; };
@@ -883,7 +883,7 @@ function radOeffnen(zeile) {
   // Werte außerhalb des Rasters (Maschine mit 84,5 kg, über 300 kg) bleiben wählbar: Sie kommen dazu.
   const ganze = ganz === '' || KG_GANZ.includes(ganz) ? KG_GANZ : [...KG_GANZ, ganz].sort((a, b) => (a === '' ? -1 : b === '' ? 1 : a - b));
   const reste = KG_REST.includes(rest) ? KG_REST : [...KG_REST, rest].sort();
-  const fertig = z0.classList.contains('fertig');
+  const fertig = z0.classList.contains('fertig'), extra = z0.dataset.extra === '1' && th?.loeschen;
   const nr = u != null ? +s + 1 : [...z0.parentElement.querySelectorAll('.tr-satz')].indexOf(z0) + 1;
   const name = z0.dataset.name || z0.closest('.tr-ue')?.querySelector('.tr-ue-kopf b')?.textContent || '';
   const el = document.createElement('div');
@@ -891,7 +891,8 @@ function radOeffnen(zeile) {
   el.innerHTML = `<div class="rad-blatt">
     <div class="rad-kopf"><button class="rad-knopf rad-zu" aria-label="Schließen">${radIc('zu')}</button>
       <div><b>Satz ${nr}${fertig ? ' bearbeiten' : ''}</b><span>${name}</span></div>
-      ${th ? (fertig ? `<button class="rad-knopf rad-weg" aria-label="Zurücknehmen">${radIc('weg')}</button>`
+      ${extra ? `<button class="rad-knopf rad-loeschen" aria-label="Satz löschen">${radIc('weg')}</button>`
+        : th ? (fertig ? `<button class="rad-knopf rad-weg" aria-label="Zurücknehmen">${radIc('weg')}</button>`
         : `<button class="rad-knopf rad-skip" aria-label="Überspringen">${radIc('skip')}</button>`) : ''}
       <button class="rad-ok" aria-label="Fertig">${radIc('ok')}</button></div>
     <div class="rad-walzen"><div class="rad-band"></div>
@@ -931,6 +932,7 @@ function radOeffnen(zeile) {
   };
   el.querySelector('.rad-skip')?.addEventListener('click', () => weiter(th.aus(+u, +s)));
   el.querySelector('.rad-weg')?.addEventListener('click', () => { th.zurueck(+u, +s); radSchliessen(); });
+  el.querySelector('.rad-loeschen')?.addEventListener('click', () => weiter(th.loeschen(+u, +s)));
   // Den Satz über das Blatt holen, falls es ihn verdeckt.
   requestAnimationFrame(() => {
     const z = finde(), dlg = document.getElementById('tr-dlg'); if (!z || !dlg) return;
@@ -941,9 +943,9 @@ function radOeffnen(zeile) {
 hubEl.addEventListener('click', e => {
   if (!APP.rad) return;
   // Abschließen öffnet im Hub einen Dialog über dem Lauf (seit 13.10.): Das Rad geht dafür zu.
-  if (e.target.closest('#tr-abschl')) return radSchliessen();
+  if (e.target.closest('#tr-abschl, #tr-verwerfen')) return radSchliessen();
   const z = e.target.closest('.tr-satz');
-  if (z && !e.target.closest('.nr, .ok')) return radOeffnen(z);
+  if (z && !e.target.closest('.nr, .ok, .weg')) return radOeffnen(z);
   // Hat der Hub neu gezeichnet (Seite, Auslassen, Abschließen) und gibt es den Satz nicht mehr, geht das Rad zu.
   setTimeout(() => { if (rad && (!rad.finde() || rad.finde().classList.contains('aus'))) radSchliessen(); });
 });
@@ -1046,3 +1048,42 @@ document.addEventListener('visibilitychange', () => {
 
 if (!DEV && 'serviceWorker' in navigator) navigator.serviceWorker.register(APP.sw || './sw.js');
 if (konf()) start(); else einrichten();
+
+
+// ── Wegwischen am Griff (seit 13.10.) ───────────────────────────
+// Sparsam (Justin): nur am Griff und am Kopf eines Blatts, nie in der Fläche — sonst Streit mit Scrollen,
+// Wochenleiste und Rad. Nach unten ziehen = dasselbe wie ✕ (Blatt) bzw. Parken (Lauf). Kurz gezogen federt es zurück.
+(() => {
+  // Training: Dialog-Blatt und Lauf. Küche: das Blatt #ml-prep-inner (Einplanen, Eintrag, Rest, Neues Rezept).
+  const blattVon = e => e.target.closest('#tr-dlg, #ml-prep-inner');
+  const griffSetzen = () => {
+    const d = document.querySelector('#tr-modal.auf #tr-dlg');
+    if (d && d.firstElementChild && !d.classList.contains('lauf') && !d.querySelector(':scope > .griff')) d.insertAdjacentHTML('afterbegin', '<div class="griff" aria-hidden="true"></div>');
+    const k = document.querySelector('#ml-prep-inner');
+    if (k && k.firstElementChild && !k.querySelector(':scope > .griff')) k.insertAdjacentHTML('afterbegin', '<div class="griff" aria-hidden="true"></div>');
+  };
+  new MutationObserver(griffSetzen).observe(document.getElementById('hub'), { childList:true, subtree:true });
+  let zug = null;
+  document.addEventListener('touchstart', e => {
+    const d = blattVon(e); if (!d || d.classList.contains('lauf')) return;
+    const amGriff = e.target.closest('.griff, .tr-dlgkopf, .tr-lhead, .ep-kopf');
+    if (!amGriff || e.target.closest('button, input, .tr-zaehler')) return;
+    zug = { d, y:e.touches[0].clientY, t:Date.now(), dy:0 };
+    d.style.transition = 'none';
+  }, { passive:true });
+  document.addEventListener('touchmove', e => {
+    if (!zug) return;
+    zug.dy = Math.max(0, e.touches[0].clientY - zug.y);
+    if (zug.dy > 4) e.preventDefault();
+    zug.d.style.transform = `translateY(${zug.dy}px)`;
+  }, { passive:false });
+  document.addEventListener('touchend', () => {
+    if (!zug) return; const z = zug; zug = null;
+    const v = z.dy / Math.max(1, Date.now() - z.t), weg = z.dy > 120 || (z.dy > 40 && v > .6);
+    z.d.style.transition = 'transform .22s cubic-bezier(.2,.8,.2,1)';
+    if (!weg) { z.d.style.transform = ''; return; }
+    z.d.style.transform = `translateY(${z.d.offsetHeight}px)`;
+    setTimeout(() => { z.d.style.transition = ''; z.d.style.transform = '';
+      (z.d.querySelector('.tr-lkopf [data-zu], .tr-dlgkopf [data-zu], #ml-plan-close, #tg-zu, #ml-rest-close, .kh-x') || z.d.querySelector('[data-zu]'))?.click(); }, 200);
+  });
+})();

@@ -189,3 +189,14 @@ html.tastatur #hub .tr-modal:not(:has(.tr-dlg.lauf)) { top:var(--vv-o) !importan
 html.tastatur #hub .tr-dlg:not(.lauf) { max-height:calc(var(--vv-h) - 8px) !important; }
 html.tastatur #hub .tr-ldlg { top:calc(var(--vv-o) + var(--vv-h) / 2) !important; }
 .rad-weg svg { width:21px; height:21px; stroke-width:1.8; }
+
+/* Griff zum Wegwischen, nur an Blättern, nicht am Lauf (13.10.) */
+#hub .griff { width:38px; height:5px; border-radius:3px; background:rgba(255,255,255,.2); margin:-10px auto 12px; }
+/* Kopfknöpfe wie in der Küche: 40 px, Form aus basis.css (--kopf-r), Zeichen 20 px */
+#hub .tr-close, #hub .tr-dlgzurueck, #hub .tr-parken, #hub .tr-lknopf { width:40px !important; height:40px !important; min-width:0; padding:0 !important; margin:0 !important;
+  border-radius:var(--kopf-r) !important; background:var(--raised) !important; color:var(--tx2) !important; display:grid !important; place-items:center; font-size:0 !important; }
+#hub .tr-close svg.ic, #hub .tr-dlgzurueck svg.ic, #hub .tr-parken svg.ic, #hub .tr-lknopf svg.ic { width:20px; height:20px; stroke-width:2.6; }
+#hub .tr-lknopf.tr-abschl { color:var(--accHi) !important; } #hub .tr-lknopf.tr-abschl.alle { background:var(--acc) !important; color:#fff !important; }
+#hub .tr-lkopf { gap:8px; } #hub .tr-lkopf .t { margin:0 4px; }
+/* Löschen eines Extra-Satzes läuft am Handy übers Rad */
+#hub .tr-satz .weg { display:none !important; }
