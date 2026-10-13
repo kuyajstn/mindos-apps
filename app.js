@@ -1155,6 +1155,8 @@ if (konf()) start(); else einrichten();
     if (!weg) { z.d.style.transform = ''; return; }
     z.d.style.transform = `translateY(${z.d.offsetHeight}px)`;
     setTimeout(() => { z.d.style.transition = ''; z.d.style.transform = '';
+      // Die Klicksperre gilt dem Daumen, nicht diesem Schließen: vorher aufheben, sonst schluckt sie es (13.10.: Blatt sprang zurück).
+      klickSperre = 0;
       (z.d.querySelector('.tr-lkopf [data-zu], .tr-dlgkopf [data-zu], #ml-plan-close, #tg-zu, #ml-rest-close, .kh-x') || z.d.querySelector('[data-zu]'))?.click(); }, 200);
   };
   document.addEventListener('touchend', ende);
