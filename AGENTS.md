@@ -53,7 +53,7 @@ Der Schlüssel (`tr-konf`) gilt für beide, alles andere im Speicher trägt das 
   und `html.tastatur`, die `mobil.css` setzt das Blatt damit fest (Küche: `#ml-prep-modal`). Solange ein Textfeld im Hub den Fokus
   hat, behält `#hub` seine Höhe (Suche in der Seite, sonst springt das Scrollen). **Neues Blatt mit Suchfeld → dieselbe Regel
   in dessen `mobil.css`.** Ohne iPhone nur nachzustellen: `html.tastatur` und `--vv-h:480px` von Hand setzen, dann tippen und messen.
-- **Prüfen ohne echte Daten:** `node werkzeug/testserver.mjs` liest aus dem Vault, Schreiben ist gesperrt.
+- **Prüfen ohne echte Daten:** `node werkzeug/testserver.mjs` liest aus dem Vault, Schreiben ist gesperrt. **Port 8787 kann belegt sein**, von einer parallelen Sitzung mit Vault-Kopie: Dann liefert er nicht den aktuellen Hub. Prüfen mit `ps` und eigenen Port nehmen (`PORT=8788 node werkzeug/testserver.mjs`).
   Schreibtests nur gegen eine Kopie: `SCHREIBEN=1 VAULT=/tmp/vault-kopie node werkzeug/testserver.mjs`,
   Funkloch dazu mit `OHNE_NETZ=1`. Bildschirmfoto in iPhone-Breite: `werkzeug/rahmen.html`
   (Testmodus: `?view=plan`, `?klick=Selektor|Selektor=>Wert`; die Küche mit `?app=kitchen`).

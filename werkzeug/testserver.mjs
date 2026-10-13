@@ -43,4 +43,4 @@ http.createServer((req, res) => {
   if (!datei.startsWith(APP) || !fs.existsSync(datei) || fs.statSync(datei).isDirectory()) { res.writeHead(404); return res.end(); }
   res.writeHead(200, { 'Content-Type':TYP[path.extname(datei)] || 'application/octet-stream' });
   res.end(fs.readFileSync(datei));
-}).listen(8787, () => console.log('http://localhost:8787/'));
+}).listen(+process.env.PORT || 8787, () => console.log(`http://localhost:${+process.env.PORT || 8787}/`));

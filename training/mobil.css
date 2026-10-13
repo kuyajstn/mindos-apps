@@ -28,6 +28,7 @@
   background:rgba(12,12,15,.86); -webkit-backdrop-filter:blur(18px); backdrop-filter:blur(18px); }
 #hub .tr-top h1 { font-size:26px; letter-spacing:-.02em; }
 #hub .tr-top .frage { display:none; }
+#hub .tr-top .frage.datum { display:block; margin:3px 0 0 -4px; font-size:14px; color:var(--tx3); white-space:nowrap; }
 #hub .tr-chip { margin-left:auto; }
 /* Die Meldung des Hubs („✓ geloggt") als Hinweis unter der Kopfzeile statt eingequetscht daneben. */
 #hub .tr-hint { position:fixed; z-index:60; left:16px; right:16px; top:calc(var(--sa-o) + 62px); margin:0; text-align:center;
@@ -37,35 +38,31 @@
 
 #hub .tr-body { padding:14px 14px calc(var(--sa-u) + 92px) !important; gap:14px !important; }
 
-/* Held: Text links, Körper klein oben rechts, Knöpfe in voller Breite darunter. */
-/* Feste Höhe wie am Mac (seit 12.10.): Sonst wuchs die Karte bei zweizeiligen Titeln („Brust + Schulter“), und die
-   Bewegung dahinter verrutschte mit, weil ihre Maske in Prozent der Kartenhöhe sitzt. Höhe = Gym-Tag mit zweizeiligem Titel,
-   die Knöpfe stehen immer unten, nur der Text darüber rückt. */
+/* Held: Text links, Figuren rechts in der Bewegung, Knöpfe in voller Breite darunter (seit 13.10.).
+   Vorher klebten kleine Figuren oben in der Ecke und die Bewegung war bis auf einen Rest ausgeblendet.
+   Jetzt wie am Mac, nur kleiner: Figuren groß genug, dass die Bewegung um sie herum lesbar ist. */
+/* Feste Höhe wie am Mac (seit 12.10.): Sonst wuchs die Karte bei zweizeiligen Titeln, und die Bewegung
+   dahinter verrutschte mit. Die Knöpfe stehen immer unten, nur der Text darüber rückt. */
 #hub .tr-hero { display:flex !important; flex-direction:column; align-items:stretch !important; min-height:244px !important; padding:20px 18px 18px !important; border-radius:22px; }
-#hub .tr-htext { flex:1; display:flex; flex-direction:column; }
+#hub .tr-htext { flex:1; display:flex; flex-direction:column; align-items:flex-start; }
 #hub .tr-hero.mit-koerper .tr-htext > small, #hub .tr-hero.mit-koerper .tr-htext > h2,
-#hub .tr-hero.mit-koerper .tr-htext > .meta { max-width:calc(100% - 112px); }
+#hub .tr-hero.mit-koerper .tr-htext > .meta { max-width:calc(100% - 138px); }
 #hub .tr-hero h2 { font-size:31px; margin:9px 0 10px; }
-#hub .tr-koerper { display:block !important; position:absolute; top:16px; right:12px; }
-#hub .tr-figuren { gap:4px; }
-#hub .tr-figuren svg { width:48px; height:108px; }
-/* Bewegungen: Am Mac laufen sie in der rechten Kartenhälfte hinter großen Figuren. Am Handy sind die Figuren
-   klein und oben rechts — in voller Größe liefen Ringe, Linien und Wellen quer durch Titel und Knöpfe.
-   Deshalb: Fokus-Motive (Druck, Zug, Pump, Seil) auf Figurengröße, alle Motive nur um die Figuren herum. */
-#hub .tr-fx.fokus { transform:translate(-50%,-50%) scale(.42) !important;
-  -webkit-mask-image:radial-gradient(ellipse 50% 50% at 50% 50%, #000 45%, transparent 100%);
-          mask-image:radial-gradient(ellipse 50% 50% at 50% 50%, #000 45%, transparent 100%); }
-#hub .tr-hero .tr-fx:not(.fokus) {
-  -webkit-mask-image:radial-gradient(ellipse 42% 48% at 80% 30%, #000 30%, transparent 100%) !important;
-          mask-image:radial-gradient(ellipse 42% 48% at 80% 30%, #000 30%, transparent 100%) !important; }
-/* Der Boden (Beine) lag unten hinter den Knöpfen und war mit der Maske oben weg: Am Handy wandert er
-   als Streifen direkt unter die Füße der Figuren, links ausgeblendet, damit er die Zahlen nicht kreuzt. */
-#hub .tr-hero .tr-fx:has(.fx-boden) { inset:0 0 auto 40% !important; height:150px;
-  -webkit-mask-image:linear-gradient(90deg, transparent 0%, #000 45%), linear-gradient(180deg, #000 55%, transparent 100%) !important;
+#hub .tr-koerper { display:block !important; position:absolute; top:18px; right:14px; }
+#hub .tr-figuren { gap:6px; }
+#hub .tr-figuren svg { width:60px; height:135px; }
+/* Fokus-Motive (Druck, Zug, Pump, Seil) auf die Figuren zentriert, im selben Verhältnis wie am Mac. */
+#hub .tr-fx.fokus { transform:translate(-50%,-50%) scale(.7) !important;
+  -webkit-mask-image:radial-gradient(ellipse 50% 50% at 50% 50%, #000 40%, transparent 80%);
+          mask-image:radial-gradient(ellipse 50% 50% at 50% 50%, #000 40%, transparent 80%); }
+/* Flächige Motive (Boden, Wasser, Tempo) nur über den Knöpfen, damit sie auf Höhe der Füße liegen —
+   die Schwimmer stehen im Wasser. Unter dem Text nur ein Hauch, wie am Mac. */
+#hub .tr-hero .tr-fx:not(.fokus) { inset:0 0 56px 0 !important;
+  -webkit-mask-image:linear-gradient(90deg, rgba(0,0,0,.07) 0%, rgba(0,0,0,.07) 38%, #000 66%), linear-gradient(180deg, #000 72%, transparent 100%) !important;
   -webkit-mask-composite:source-in;
-          mask-image:linear-gradient(90deg, transparent 0%, #000 45%), linear-gradient(180deg, #000 55%, transparent 100%) !important;
+          mask-image:linear-gradient(90deg, rgba(0,0,0,.07) 0%, rgba(0,0,0,.07) 38%, #000 66%), linear-gradient(180deg, #000 72%, transparent 100%) !important;
           mask-composite:intersect; }
-#hub .tr-hero .akt { margin-top:auto; padding-top:18px; gap:8px; }
+#hub .tr-hero .akt { align-self:stretch; margin-top:auto; padding-top:18px; gap:8px; }
 #hub .tr-hero .akt > * { flex:1 1 auto; justify-content:center; min-height:46px; }
 #hub .tr-cta, #hub .tr-ghost, #hub .tr-fertig { font-size:15px !important; min-height:46px; justify-content:center; }
 
