@@ -27,6 +27,9 @@ html, body { background:#0A0908; }
 /* Kalender- und Flammenblatt hängen IN der Zeile. Mit z-index 30 lag die ganze Zeile unter dem
    Schleier (40), das Blatt wurde mit unscharf. Offen hebt sich die Zeile darüber (10.10.). */
 #hub .kt-top:has(.kt-pill-wrap.is-auf) { z-index:47; }
+/* Jeder Teil der Kopfzeile auf eigener Zeichenebene, wie im Training (13.10.): Nur der Chip mit der pulsierenden Flamme
+   blieb beim Scrollen stehen, weil die Animation ihm eine eigene Ebene gibt; der Titel verschwand. */
+#hub .kt-top > * { transform:translateZ(0); }
 
 /* Leiste unten statt Pillen oben: drei Reiter, Symbol über Wort. */
 #hub .kh-tabs { position:fixed; z-index:40; left:0; right:0; top:var(--app-h); transform:translateY(-100%); margin:0 !important; display:grid !important;
