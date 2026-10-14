@@ -14,7 +14,7 @@
 #hub .tr-side { position:fixed; z-index:40; left:0; right:0; top:var(--app-h); transform:translateY(-100%); display:block; padding:6px 8px calc(var(--sa-u) + 4px) !important;
   background:rgba(10,10,13,.86); -webkit-backdrop-filter:blur(18px) saturate(1.4); backdrop-filter:blur(18px) saturate(1.4);
   border:0 !important; border-top:1px solid rgba(255,255,255,.08) !important; }
-#hub .tr-ws, #hub .tr-apps, #hub .tr-h, #hub .tr-nav [data-plan] { display:none !important; }
+#hub .tr-ws { display:none !important; }   /* Pläne-Liste und verbundene Apps markiert der Hub als nur-obsidian (basis.css) */
 #hub .tr-nav { display:grid !important; grid-template-columns:repeat(4,1fr); gap:0; }
 #hub .tr-ni { flex-direction:column; justify-content:center !important; gap:3px !important; padding:6px 0 4px !important;
   font-size:10.5px !important; font-weight:600; background:none !important; color:var(--tx3) !important; position:relative; }
@@ -103,8 +103,6 @@
 #hub .tr-karte { padding:16px 18px; }
 #hub .tr-row { padding:13px 15px !important; }
 
-/* Am Handy wird nur geloggt, nicht umgestellt: Der aktive Plan steht im Frontmatter des Hubs. */
-#hub [data-aktivieren] { display:none !important; }
 #hub .tr-planhead h2 { font-size:25px; }
 #hub .tr-seg { width:auto; overflow-x:auto; flex-wrap:nowrap; }
 #hub .tr-seg button { white-space:nowrap; }

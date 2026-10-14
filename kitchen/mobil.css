@@ -10,9 +10,8 @@ html, body { background:#0A0908; }
 #hub .kh { border-radius:0 !important; border:0 !important; overflow:visible !important; min-height:var(--app-h);
   padding:0 14px calc(var(--sa-u) + 86px) !important; box-sizing:border-box; }
 
-/* Kopf „Kitchen“ mit Glocke: am Handy weg (Justin, 10.10.). Die Glocke bleibt am Mac, ihre Knöpfe
-   gehen ohnehin an Claudian. Oben bleibt nur Platz für die Statusleiste des iPhones. */
-#hub .kh-kopf { display:none !important; }
+/* Kopf „Kitchen“ mit Glocke: am Handy weg (Justin, 10.10.), markiert der Hub als nur-obsidian (basis.css).
+   Oben bleibt nur Platz für die Statusleiste des iPhones. */
 #hub .kh { padding-top:calc(var(--sa-o) + 8px) !important; }
 /* Tageszeile im Tagebuch (Heute · ‹ Serie Kalender ›) ist jetzt die angeheftete Zeile. Der negative
    Rand hebt den Abstand oben auf, damit sie beim Kleben bis unter die Statusleiste reicht. */

@@ -103,3 +103,7 @@ html.ios-app { --app-h:min(100lvh, calc(100dvh + env(safe-area-inset-top))); }
 .le-tab td { padding:7px 8px 7px 0; border-bottom:1px solid rgba(255,255,255,.06); color:#d6d0c8; white-space:nowrap; }
 .le-tab tr:first-child td { color:#8a8177; font-weight:600; font-size:11.5px; text-transform:uppercase; letter-spacing:.04em; }
 .le-tab td:first-child { white-space:normal; min-width:130px; }
+
+/* Werkstatt-Teile der Hubs (Glocke, Pläne umschalten, verbundene Apps): Der Hub markiert sie selbst mit nur-obsidian,
+   die App ist die fertige Fassung (Justin, 14.10.). Eine Regel für alle Apps, die App kennt keine Klassennamen der Hubs. */
+#hub .nur-obsidian { display:none !important; }
