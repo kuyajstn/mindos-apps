@@ -29,6 +29,7 @@ Der Schlüssel (`tr-konf`) gilt für beide, alles andere im Speicher trägt das 
 
 ## Was beim Ändern zählt
 
+- **Werkstatt-Teile markiert der Hub selbst** (seit 14.10., `apps-v54`): Klasse `nur-obsidian`, ausgeblendet von einer Regel in `basis.css`. Die `mobil.css` einer App blendet nur noch fürs Layout aus (Seitenleiste wird Leiste unten, Platz neben der Figur), nie Werkstatt nach Klassennamen. Grundsatz: `MindOS/04 Knowledge/MindOS Design-Prinzipien für Apps.md`.
 - **Benutzt der Hub eine neue Obsidian-Funktion, stürzt die App ab**, bis sie in `shim()` in `app.js`
   nachgebildet ist. Prüfen mit `grep -o "dv\.[a-zA-Z]*\|app\.[a-zA-Z.]*\|require([^)]*)"` auf den Hub.
 - **Das Rad (Wdh × kg , Nachkomma) gehört nur der App** (`radOeffnen` in `app.js`): Es füllt die Felder `.tr-satz .g-w/.g-g`, die der
