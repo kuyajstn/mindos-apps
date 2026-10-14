@@ -86,6 +86,15 @@ html, body { background:#0A0908; }
   padding:8px 10px !important; background:rgba(10,9,8,.9); border-top:1px solid rgba(255,255,255,.06); }
 html.tastatur #hub .ht-handy.r-journal .ht-stempelreihe { top:calc(var(--vv-o) + var(--vv-h)); }
 html.tastatur #hub .ht-reiter { display:none; }
+/* Tastatur offen (gemessen 14.10.): Safari schob die Seite hoch, die Kopfzeile verschwand unter der Statusleiste und der
+   Morgen-Teil lugte zwischen Stempelleiste und Tastatur hervor. Jetzt füllt das Heft genau den sichtbaren Ausschnitt
+   über der Stempelleiste, und nur das Feld, in dem getippt wird, steht darauf. */
+html.tastatur #hub .ht-handy.r-journal .ht-kopf { display:none; }
+html.tastatur #hub .ht-handy.r-journal .ht-heft { position:fixed; z-index:20; left:var(--rand); right:var(--rand); width:auto; min-height:0;
+  top:calc(var(--vv-o) + var(--sa-o) + 8px); height:calc(var(--vv-h) - var(--sa-o) - 8px - 74px); }
+html.tastatur #hub .ht-handy .ht-flaeche:has(#ht-ta:focus) :is(.ht-zone-morgen, .ht-papiertrenner),
+html.tastatur #hub .ht-handy .ht-flaeche:has(#ht-mi:focus) :is(.ht-zone-journal, .ht-papiertrenner) { display:none; }
+html.tastatur #hub .ht-handy .ht-flaeche:has(#ht-mi:focus) .ht-zone-morgen { flex:1 1 0; }
 #hub .ht-handy .ht-stempelreihe .ht-stempel { width:auto !important; height:auto !important; flex:1 1 0; max-width:74px; margin:0 !important;
   transform:none !important; filter:none !important; background:none !important; box-shadow:none !important; border-radius:6px; }
 #hub .ht-handy .ht-stempelreihe .ht-stempel::before, #hub .ht-handy .ht-stempelreihe .ht-stempel::after { display:none !important; }
