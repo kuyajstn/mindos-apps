@@ -75,7 +75,9 @@ Der Schlüssel (`tr-konf`) gilt für beide, alles andere im Speicher trägt das 
 - **PDF lesen (seit 14.10., Training: Seca-Import):** `vendor/pdf.min.mjs` + `vendor/pdf.worker.min.mjs` (pdf.js 6.4.299, Mozilla, Apache-2.0,
   `vendor/pdfjs-LICENSE.txt`). **Der Hub lädt sie selbst** per `import()`, erst beim ersten PDF, am Handy über `../vendor/`, in Obsidian von
   `https://kuyajstn.github.io/mindos-apps/vendor/` (gemessen 14.10.: geht, Obsidian nimmt den Worker dann im Hauptfaden). **Nicht in `HUELLE`.**
-  Beide Dateien müssen dieselbe Version haben. Aktualisieren: `npm pack pdfjs-dist@<Version>`, aus `package/build/` kopieren. Der Testserver liefert
+  Beide Dateien müssen dieselbe Version haben. Aktualisieren: `npm pack pdfjs-dist@<Version>`, **aus `package/legacy/build/` kopieren, nicht aus `build/`**:
+  Die moderne Fassung braucht `Map.prototype.getOrInsert`, `Math.sumPrecise` u. a., die Safari am iPhone (Okt. 2026) fehlen. Chrome und Obsidian haben sie,
+  deshalb lief der erste Test am Mac und scheiterte am Handy. Prüfen ohne Handy: in `node` diese Funktionen löschen, dann ein PDF lesen. Der Testserver liefert
   seit 14.10. `.mjs` und `.pdf` mit passendem Typ (vorher scheiterte `import()` an `application/octet-stream`).
 - **Journal (seit 14.10.):** Der Hub zeichnet am Handy selbst drei Reiter (`HANDY` im Hub = `app.isMobile` und `window.HUB_APP`,
   Obsidian am iPhone behält die Szene), `journal/mobil.css` macht daraus Kopfzeile, Karten, ganzseitiges Heft, Stempelleiste
