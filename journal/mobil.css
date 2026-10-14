@@ -79,6 +79,10 @@ html, body { background:#0A0908; }
 #hub .ht-handy .ht-ecke .ht-st { font-size:11px; }
 #hub .ht-handy .ht-papierkopf { font-size:17px; }
 #hub .ht-handy .ht-ta::placeholder { -webkit-text-fill-color:#8a7d68; }
+/* Linien beim Scrollen: Safari am iPhone ignoriert background-attachment:local, die Linien blieben stehen und liefen
+   durch die Schrift (gemessen 14.10.). Der Hub schreibt die Scrollhöhe als --ht-scroll, hier wird damit verschoben. */
+#hub .ht-handy :is(.ht-unterlage, .ht-mi-papier).ht-liniert { background-attachment:scroll !important;
+  background-position:0 calc(var(--ht-basis, 0px) + var(--ht-strich, 1px) - var(--ht-zh, 1.62rem) - var(--ht-scroll, 0px)) !important; }
 
 /* Stempel: über der Leiste, bei offener Tastatur direkt über ihr (--vv-h/--vv-o aus app.js). */
 #hub .ht-handy.r-tag .ht-stempelreihe { display:none !important; }
