@@ -842,7 +842,11 @@ if (window.visualViewport) {
   const messen = () => {
     wurzel.style.setProperty('--vv-h', `${vv.height}px`);
     wurzel.style.setProperty('--vv-o', `${vv.offsetTop}px`);
-    wurzel.classList.toggle('tastatur', wurzel.clientHeight - vv.height > 120);
+    const war = wurzel.classList.contains('tastatur'), ist = wurzel.clientHeight - vv.height > 120;
+    wurzel.classList.toggle('tastatur', ist);
+    // Tastatur zu: Safari ließ die Seite dort stehen, wohin es sie fürs Tippen geschoben hatte, auch über ihr Ende
+    // hinaus (Journal, gemessen 14.10.: y 152 bei einer Seite ohne Scrollweg). Dann zurück an den Rand der Seite.
+    if (war && !ist) setTimeout(() => { const max = Math.max(0, wurzel.scrollHeight - innerHeight); if (scrollY > max) scrollTo(0, max); }, 120);
   };
   vv.addEventListener('resize', messen); vv.addEventListener('scroll', messen); messen();
 }

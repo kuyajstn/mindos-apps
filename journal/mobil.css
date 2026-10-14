@@ -4,7 +4,9 @@
    hier steht nur, wie das aussieht. „#hub .ht-handy …“ vorn, damit es gegen das CSS des Hubs gewinnt.
    ═══════════════════════════════════════════════════════════════ */
 html, body { background:#0A0908; }
-#hub .ht-handy { --rand:16px; --leiste:calc(var(--sa-u) + 62px); }
+/* Mindestens so hoch wie der Bildschirm, wie in Training und Küche: Eine kürzere Seite bekommt in der Startbildschirm-App
+   (iOS 26) unten einen Streifen, der die Leiste überdeckt und beim Ziehen mitwandert (gemessen 14.10.: Seite 762 statt 812). */
+#hub .ht-handy { --rand:16px; --leiste:calc(var(--sa-u) + 62px); display:block; min-height:var(--app-h); }
 
 /* Fläche: randlos, kein Zoom, keine Höchstbreite (am Mac rechnet der Hub mit der Fensterhöhe). */
 /* Kein Container am Handy: container-type macht .ht zum Bezugsrahmen für alles mit position:fixed darin.
