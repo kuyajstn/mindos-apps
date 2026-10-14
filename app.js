@@ -963,17 +963,17 @@ function radOeffnen(zeile) {
     let t = null;
     walze.addEventListener('scroll', () => { clearTimeout(t); t = setTimeout(uebernehmen, 90); }, { passive:true });
   }
-  const weiter = n => n ? radOeffnen(n) : radSchliessen();
+  // Seit 14.10. (Justin): Das Rad geht nach jedem Satz zu und öffnet sich nur per Tipp auf eine Zeile, nie von selbst.
+  // Den nächsten Satz markiert der Hub, er öffnet ihn nicht.
   el.querySelector('.rad-zu').onclick = radSchliessen;
   el.querySelector('.rad-ok').onclick = () => {
     uebernehmen();
-    if (!th || u == null) return radSchliessen();
-    const n = th.fertig(+u, +s);
-    fertig ? radSchliessen() : weiter(n);
+    if (th && u != null) th.fertig(+u, +s);
+    radSchliessen();
   };
-  el.querySelector('.rad-skip')?.addEventListener('click', () => weiter(th.aus(+u, +s)));
+  el.querySelector('.rad-skip')?.addEventListener('click', () => { th.aus(+u, +s); radSchliessen(); });
   el.querySelector('.rad-weg')?.addEventListener('click', () => { th.zurueck(+u, +s); radSchliessen(); });
-  el.querySelector('.rad-loeschen')?.addEventListener('click', () => weiter(th.loeschen(+u, +s)));
+  el.querySelector('.rad-loeschen')?.addEventListener('click', () => { th.loeschen(+u, +s); radSchliessen(); });
   // Den Satz über das Blatt holen, falls es ihn verdeckt.
   requestAnimationFrame(() => {
     const z = finde(), dlg = document.getElementById('tr-dlg'); if (!z || !dlg) return;
@@ -984,15 +984,15 @@ function radOeffnen(zeile) {
 hubEl.addEventListener('click', e => {
   if (!APP.rad) return;
   // Abschließen öffnet im Hub einen Dialog über dem Lauf (seit 13.10.): Das Rad geht dafür zu.
-  if (e.target.closest('#tr-abschl, #tr-verwerfen')) return radSchliessen();
+  if (e.target.closest('#tr-abschl, #tr-verwerfen, [data-abschl]')) return radSchliessen();
   const z = e.target.closest('.tr-satz');
-  // Der Kreis hakt im Hub ab (seit 13.10.). War das Rad offen, folgt es dem nächsten Satz; ein Satz ohne Werte öffnet es.
+  // Der Kreis hakt im Hub ab (seit 13.10.). Das Rad folgt nicht (seit 14.10.), nur ein Satz ohne Werte öffnet es, weil dort nichts abzuhaken ist.
   if (z && e.target.closest('.nr')) {
-    const warOffen = !!rad, u = z.dataset.u, s = z.dataset.s;
+    const u = z.dataset.u, s = z.dataset.s;
     setTimeout(() => {
       const a = document.querySelector('#tr-dlg .tr-satz.aktiv'); if (!a) return radSchliessen();
       const leer = !a.querySelector('.g-w')?.value && !a.querySelector('.g-g')?.value, selbe = a.dataset.u === u && a.dataset.s === s;
-      if (warOffen || (leer && selbe && !a.classList.contains('fertig'))) radOeffnen(a);
+      if (leer && selbe && !a.classList.contains('fertig')) radOeffnen(a); else radSchliessen();
     });
     return;
   }
