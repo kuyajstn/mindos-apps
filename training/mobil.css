@@ -64,6 +64,8 @@
 #hub .tr-hero h2 { font-size:31px; margin:4px 0 8px; }
 #hub .tr-hero .meta b.num { font-size:20px; }
 #hub .tr-hero .meta { gap:6px 12px !important; flex-wrap:nowrap; white-space:nowrap; }
+/* Neben den Figuren passen zwei Werte; der dritte (Cardio von der Uhr) nur am Mac. */
+#hub .tr-hero.mit-koerper .meta > span:nth-child(n+3) { display:none; }
 #hub .tr-koerper { display:block !important; position:absolute; top:50%; right:14px; transform:translateY(-50%); }
 #hub .tr-figuren { gap:6px; }
 #hub .tr-figuren svg { width:60px; height:135px; }

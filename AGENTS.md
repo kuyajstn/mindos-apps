@@ -81,6 +81,14 @@ Der Schlüssel (`tr-konf`) gilt für beide, alles andere im Speicher trägt das 
   `ReadableStream`, das Safari nicht kann. Der Hub liest deshalb über `streamTextContent().getReader()`. Prüfen ohne Handy: in `node` diese Funktionen
   löschen (`Map.prototype.getOrInsert`, `Math.sumPrecise`, `ReadableStream.prototype[Symbol.asyncIterator]` …), dann ein PDF lesen. Der Testserver liefert
   seit 14.10. `.mjs` und `.pdf` mit passendem Typ (vorher scheiterte `import()` an `application/octet-stream`).
+- **Texterkennung (seit 14.10., Training: „Aus Garmin“):** `vendor/tesseract/` (Tesseract.js 7.0.0 mit tesseract.js-core 7.0.0, Apache-2.0,
+  Lizenzen daneben; Sprachdaten `deu.traineddata.gz` aus `@tesseract.js-data/deu`, Fassung `4.0.0_best_int`, 1,3 MB). **Der Hub lädt sie selbst**
+  (`texterkennung` im Training Hub, Skript-Tag statt `import()`, weil `tesseract.min.js` kein Modul ist), am Handy über `../vendor/tesseract/`, in Obsidian
+  von `https://kuyajstn.github.io/mindos-apps/vendor/tesseract/`. **Nicht in `HUELLE`**, ohne Netz gibt es beim ersten Bild keine Erkennung.
+  **Drei Kerne liegen dort, weil Tesseract.js selbst wählt** (relaxed SIMD, SIMD, ohne), je nach Gerät. Fehlt der passende, scheitert das Laden still im Arbeiter.
+  **Kern und Tesseract.js müssen zusammenpassen** (`tesseract.js` 7 verlangt `tesseract.js-core` ^7): Beim Aktualisieren `npm i tesseract.js@<Version>` und
+  die Kerne aus `node_modules/tesseract.js-core/` nehmen, nicht `npm pack tesseract.js-core` (das lieferte am 14.10. die 6.1.2). Prüfen ohne Handy: im Testserver
+  über `DataTransfer` ein Bild ins Feld `[data-garmin]` legen (Testbilder in `/tmp`, nie im Vault).
 - **Journal (seit 14.10.):** Der Hub zeichnet am Handy selbst drei Reiter (`HANDY` im Hub = `app.isMobile` und `window.HUB_APP`,
   Obsidian am iPhone behält die Szene), `journal/mobil.css` macht daraus Kopfzeile, Karten, ganzseitiges Heft, Stempelleiste
   über der Tastatur (`--vv-h`/`--vv-o`) und Leiste unten. Das Heft ist am Handy immer beschreibbar: Safari öffnet die Tastatur nur
