@@ -72,6 +72,11 @@ Der Schlüssel (`tr-konf`) gilt für beide, alles andere im Speicher trägt das 
   nennen. **Die `.wasm` muss zur Version passen, die in der `.js` steht** (heute zxing-wasm 3.1.3): Beim Aktualisieren beide aus
   `npm pack barcode-detector` bzw. `npm pack zxing-wasm@<Version>` holen. Prüfen ohne Handy: `werkzeug/barcode-testfoto.py`
   zeichnet einen Strichcode als unscharfes, schräges „Foto“; im Testserver über `DataTransfer` ins Dateifeld `#ml-plan-scan` legen.
+- **PDF lesen (seit 14.10., Training: Seca-Import):** `vendor/pdf.min.mjs` + `vendor/pdf.worker.min.mjs` (pdf.js 6.4.299, Mozilla, Apache-2.0,
+  `vendor/pdfjs-LICENSE.txt`). **Der Hub lädt sie selbst** per `import()`, erst beim ersten PDF, am Handy über `../vendor/`, in Obsidian von
+  `https://kuyajstn.github.io/mindos-apps/vendor/` (gemessen 14.10.: geht, Obsidian nimmt den Worker dann im Hauptfaden). **Nicht in `HUELLE`.**
+  Beide Dateien müssen dieselbe Version haben. Aktualisieren: `npm pack pdfjs-dist@<Version>`, aus `package/build/` kopieren. Der Testserver liefert
+  seit 14.10. `.mjs` und `.pdf` mit passendem Typ (vorher scheiterte `import()` an `application/octet-stream`).
 - **Journal (seit 14.10.):** Der Hub zeichnet am Handy selbst drei Reiter (`HANDY` im Hub = `app.isMobile` und `window.HUB_APP`,
   Obsidian am iPhone behält die Szene), `journal/mobil.css` macht daraus Kopfzeile, Karten, ganzseitiges Heft, Stempelleiste
   über der Tastatur (`--vv-h`/`--vv-o`) und Leiste unten. Das Heft ist am Handy immer beschreibbar: Safari öffnet die Tastatur nur
