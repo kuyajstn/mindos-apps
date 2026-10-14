@@ -1,6 +1,6 @@
 // Hülle der App offline verfügbar halten. Netz zuerst, damit Änderungen sofort
 // ankommen; ohne Netz die zuletzt geladene Fassung. GitHub-Anfragen gehen nie hier durch.
-const V = 'apps-v47';
+const V = 'apps-v48';
 // Eine Hülle für alle Apps: je App ein Ordner (training/, kitchen/, journal/), gemeinsam app.js und basis.css.
 const HUELLE = ['./', './index.html', './app.js', './basis.css', './vendor/moment.min.js',
                 './training/', './training/index.html', './training/mobil.css', './training/manifest.webmanifest',

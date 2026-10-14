@@ -7,7 +7,9 @@ html, body { background:#0A0908; }
 #hub .ht-handy { --rand:16px; --leiste:calc(var(--sa-u) + 62px); }
 
 /* Fläche: randlos, kein Zoom, keine Höchstbreite (am Mac rechnet der Hub mit der Fensterhöhe). */
-#hub .ht-handy .ht { zoom:1 !important; max-width:none !important; }
+/* Kein Container am Handy: container-type macht .ht zum Bezugsrahmen für alles mit position:fixed darin.
+   Kopfzeile und Stempelleiste scrollten so mit dem Inhalt und rutschten beim Ziehen über die Leiste unten (14.10.). */
+#hub .ht-handy .ht { zoom:1 !important; max-width:none !important; container-type:normal !important; }
 #hub .ht-handy .ht-buehne { background:none !important; border:0 !important; border-radius:0 !important;
   padding:calc(var(--sa-o) + var(--kopf-rest, 64px) + 10px) var(--rand) calc(var(--leiste) + 18px) !important; }
 
