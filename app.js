@@ -1098,25 +1098,6 @@ window.addEventListener('pageshow', e => { if (e.persisted) nachbauen(); });
   new MutationObserver(() => { if (!geplant) { geplant = true; requestAnimationFrame(messen); } }).observe(hubEl, { childList:true, subtree:true });
 })();
 
-// VORÜBERGEHEND (14.10.): Messanzeige nur in der Startbildschirm-App. Zeigt für jede feste Leiste, wo sie steht und
-// woran sie hängt („Bild“ = am Bildschirm, sonst die Fläche, die sie mitnimmt). Nach Justins Screenshots wieder entfernen.
-if (navigator.standalone) {
-  const m = document.createElement('div');
-  m.style.cssText = 'position:fixed;z-index:999;left:50%;transform:translateX(-50%);top:calc(env(safe-area-inset-top) + 2px);font:600 10px ui-monospace,monospace;color:#ff0;background:rgba(0,0,0,.8);padding:3px 6px;border-radius:6px;pointer-events:none;white-space:pre;text-align:left';
-  document.body.append(m);
-  const haengt = e => { for (let p = e.parentElement; p && p !== document.body; p = p.parentElement) { const c = getComputedStyle(p);
-    if (c.transform !== 'none' || c.containerType !== 'normal' || c.contain !== 'none' || c.filter !== 'none') return (p.className || p.tagName).toString().split(' ')[0]; } return 'Bild'; };
-  const schreib = () => {
-    const z = [`y ${Math.round(scrollY)}  inner ${innerHeight}  vv ${Math.round(visualViewport?.height)}@${Math.round(visualViewport?.offsetTop)}  doc ${document.documentElement.scrollHeight}`];
-    for (const [n, s] of [['kopf', '.ht-kopf, .tr-top, .kt-top'], ['stempel', '.ht-stempelreihe'], ['leiste', '.ht-reiter, .kh-tabs, .tr-side']]) {
-      const e = document.querySelector('#hub ' + s.split(', ').join(', #hub '));
-      if (!e || getComputedStyle(e).display === 'none') { z.push(`${n} –`); continue; }
-      const r = e.getBoundingClientRect(); z.push(`${n} ${Math.round(r.top)}–${Math.round(r.bottom)} ${getComputedStyle(e).position} an ${haengt(e)}`);
-    }
-    m.textContent = z.join('\n'); };
-  setInterval(schreib, 250); addEventListener('scroll', schreib, { passive:true });
-}
-
 // Nur im Testmodus: Ansicht und Klick per Adresse, für Bildschirmfotos ohne Schreiben.
 function testKlick() {
   // Mehrere Schritte mit | getrennt; „Selektor=Wert" füllt ein Feld statt zu klicken.
