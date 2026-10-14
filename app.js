@@ -159,6 +159,8 @@ async function bilderBereitlegen(holen) {
     const m = d.text.match(/^---\n([\s\S]*?)\n---/);
     if (m) for (const z of m[1].matchAll(/^[^:\n]*:\s*["']?([^"'\n]+?\.(?:jpe?g|png|webp|gif|avif))["']?\s*$/gim)) pfade.add(z[1].trim());
   }
+  // Was ein Hub fest einbindet (Heftblatt, Schrift des Journals), steht in keinem Frontmatter: APP.bilder.
+  for (const p of APP.bilder || []) pfade.add(p);
   const speicher = await caches.open(`${APP.praefix}-bilder`);
   await jeweils([...pfade].filter(p => !bilder[p]), 4, async p => {
     const schluessel = `/bild/${pfadUrl(p)}`;
@@ -384,12 +386,16 @@ function frontmatterAendern(text, fn) {
   const ende = i => { let j = i + 1; while (j < zeilen.length && /^\s+-\s|^\s+\S/.test(zeilen[j])) j++; return j; };
   for (const k of new Set([...Object.keys(vorher), ...Object.keys(nachher)])) {
     if (gleich(vorher[k], nachher[k])) continue;
-    if (Array.isArray(nachher[k]) || (nachher[k] && typeof nachher[k] === 'object'))
-      throw new Error(`Listen im Frontmatter (${k}) am Mac ändern`);
+    // Einfache Listen (habits_archiviert) schreibt die App wie Obsidian: eingerückt mit „  - “, leer als [].
+    // Verschachteltes (Listen von Objekten, Objekte) bleibt dem Mac vorbehalten.
+    const liste = Array.isArray(nachher[k]);
+    if ((liste && nachher[k].some(x => x && typeof x === 'object')) || (!liste && nachher[k] && typeof nachher[k] === 'object'))
+      throw new Error(`Verschachteltes im Frontmatter (${k}) am Mac ändern`);
     const i = stelle(k);
     if (!(k in nachher)) { if (i >= 0) zeilen.splice(i, ende(i) - i); continue; }
-    const z = `${k}: ${yamlWert(nachher[k])}`;
-    if (i >= 0) zeilen.splice(i, ende(i) - i, z); else zeilen.push(z);
+    const z = !liste ? [`${k}: ${yamlWert(nachher[k])}`]
+      : nachher[k].length ? [`${k}:`, ...nachher[k].map(x => `  - ${yamlWert(x)}`)] : [`${k}: []`];
+    if (i >= 0) zeilen.splice(i, ende(i) - i, ...z); else zeilen.push(...z);
   }
   return `---\n${zeilen.join('\n')}${zeilen.length ? '\n' : ''}---\n` + text.slice(m[0].length);
 }
@@ -403,6 +409,14 @@ const datenArray = arr => ({ where:f => datenArray(arr.filter(f)), array:() => a
   map:f => datenArray(arr.map(f)), filter:f => datenArray(arr.filter(f)), forEach:f => arr.forEach(f),
   values:arr, length:arr.length, [Symbol.iterator]:() => arr[Symbol.iterator]() });
 
+function datum(d) {
+  const zwei = n => String(n).padStart(2, '0');
+  const um = n => { const x = new Date(d); x.setDate(x.getDate() + n); return datum(x); };
+  return { year:d.getFullYear(), month:d.getMonth() + 1, day:d.getDate(), weekday:(d.getDay() + 6) % 7 + 1,
+    plus:o => um(o?.days || 0), minus:o => um(-(o?.days || 0)), toJSDate:() => new Date(d),
+    toFormat:f => f.replace('yyyy', d.getFullYear()).replace('MM', zwei(d.getMonth() + 1)).replace('dd', zwei(d.getDate())),
+    toString:() => `${d.getFullYear()}-${zwei(d.getMonth() + 1)}-${zwei(d.getDate())}` };
+}
 function shim(root) {
   const seiten = {};
   const seite = p => {
@@ -411,7 +425,8 @@ function shim(root) {
       const { fm, body } = frontmatter(dateien[p].text);
       const ab = dateien[p].text.slice(0, dateien[p].text.length - body.length).split('\n').length - 1;
       seiten[p] = { ...fm, file:{ path:p, name:p.split('/').pop().replace(/\.md$/, ''),
-        folder:p.split('/').slice(0, -1).join('/'), lists:datenArray(listen(body, ab)) } };   // wie Dataview: .values ist das Array
+        folder:p.split('/').slice(0, -1).join('/'), size:new TextEncoder().encode(dateien[p].text).length,
+        lists:datenArray(listen(body, ab)) } };   // wie Dataview: .values ist das Array
     }
     return seiten[p];
   };
@@ -426,6 +441,8 @@ function shim(root) {
       return datenArray(Object.keys(dateien).filter(p => p.endsWith('.md') && p.startsWith(o + '/')).sort().map(seite)); },
     page: p => seite(p.endsWith('.md') ? p : p + '.md'),
     current: () => seite(HUB),
+    // Nur was die Hubs von Luxon brauchen (Daily Journal: Tag, plus/minus Tage, yyyy-MM-dd, weekday).
+    date: w => { const d = w === 'today' || w == null ? new Date() : new Date(w); d.setHours(12, 0, 0, 0); return datum(d); },
     el: (tag, text) => { const e = document.createElement(tag); if (text) e.textContent = text; root.appendChild(e); return e; },
   };
   const app = {
@@ -456,6 +473,7 @@ function shim(root) {
         if (text.startsWith(basis)) return schreiben({ art:'anhang', pfad:f.path, text:text.slice(basis.length) });
         await schreiben({ art:'ersetzen', pfad:f.path, text, sha:(lies(K_CACHE) || {})[f.path]?.sha ?? null });
       },
+      process: async (f, fn) => { const neu = fn(dateien[f.path]?.text ?? ''); await app.vault.modify(f, neu); return neu; },
       // Papierkorb: Auf GitHub gelöscht ist zurückholbar (die Geschichte bleibt), wie Obsidians .trash.
       trash: loeschen, delete: loeschen,
       getResourcePath: f => bilder[f.path] || '',
@@ -1067,7 +1085,7 @@ window.addEventListener('pageshow', e => { if (e.persisted) nachbauen(); });
 // der Inhalt darunter braucht ihren Platz frei. Gemessen statt geschätzt, weil sie je Ansicht anders hoch ist.
 (() => {
   let kopf = null, geplant = false;
-  const messen = () => { geplant = false; const k = document.querySelector('#hub .tr-top, #hub .kt-top');
+  const messen = () => { geplant = false; const k = document.querySelector('#hub .tr-top, #hub .kt-top, #hub .ht-handy .ht-kopf');
     if (k !== kopf) { kopf && ro.unobserve(kopf); kopf = k; k && ro.observe(k); }
     // Nur die Höhe unterhalb des oberen Polsters: Das Polster enthält den Rand der Statusleiste, den das CSS selbst
     // dazurechnet. So stimmt der Abstand auch, wenn Safari den Rand erst nach der Messung liefert (iOS 26, 13.10.).

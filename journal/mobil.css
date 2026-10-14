@@ -1,0 +1,98 @@
+/* ═══════════════════════════════════════════════════════════════
+   Handy-Layout über dem CSS des Daily Journals (gemeinsame Hülle: ../basis.css).
+   Der Hub zeichnet am Handy drei Reiter (.ht-handy.r-tag | r-journal | r-habits, Leiste .ht-reiter),
+   hier steht nur, wie das aussieht. „#hub .ht-handy …“ vorn, damit es gegen das CSS des Hubs gewinnt.
+   ═══════════════════════════════════════════════════════════════ */
+html, body { background:#0A0908; }
+#hub .ht-handy { --rand:16px; --leiste:calc(var(--sa-u) + 62px); }
+
+/* Fläche: randlos, kein Zoom, keine Höchstbreite (am Mac rechnet der Hub mit der Fensterhöhe). */
+#hub .ht-handy .ht { zoom:1 !important; max-width:none !important; }
+#hub .ht-handy .ht-buehne { background:none !important; border:0 !important; border-radius:0 !important;
+  padding:calc(var(--sa-o) + var(--kopf-rest, 64px) + 10px) var(--rand) calc(var(--leiste) + 18px) !important; }
+
+/* ── Kopfzeile wie in der Küche: Datum groß, darunter der Wochentag, rechts ‹ Kalender › ── */
+#hub .ht-handy .ht-kopf { position:fixed; top:0; left:0; right:0; z-index:30; margin:0 !important;
+  padding:calc(var(--sa-o) + 8px) var(--rand) 10px !important; display:flex; align-items:center; gap:10px; }
+#hub .ht-handy .ht-kopf::before { content:''; position:absolute; inset:0; z-index:-1; pointer-events:none;
+  background:rgba(10,9,8,.86); -webkit-backdrop-filter:blur(18px) saturate(1.3); backdrop-filter:blur(18px) saturate(1.3); }
+#hub .ht-handy .ht-kopf > * { transform:translateZ(0); }
+#hub .ht-handy .ht-kopf-links { min-width:0 !important; flex:1 1 auto; flex-direction:column; align-items:flex-start; gap:2px; }
+#hub .ht-handy .ht-kopf-d { font-size:30px; line-height:1.1; letter-spacing:-.03em; }
+#hub .ht-handy .ht-kopf-w { font-size:13px; }
+#hub .ht-handy .ht-nav { gap:0; background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.1); border-radius:999px; padding:3px; }
+#hub .ht-handy .ht-nav > .ht-p, #hub .ht-handy .ht-nav > .ht-kal { width:44px; height:38px; margin:0; border:0; background:none;
+  border-radius:999px; font-size:20px; color:#e8e8ea; }
+#hub .ht-handy .ht-nav > .ht-kal { order:1; } #hub .ht-handy #ht-next, #hub .ht-handy #pp-next { order:2; }
+#hub .ht-handy .ht-nav > .ht-kal svg { width:20px; height:20px; }
+#hub .ht-handy .ht-nav > .ht-kal.an { background:rgba(255,255,255,.1); }
+#hub .ht-handy .pp-zu { display:none; }
+
+/* Kalenderblatt: unter der Kopfzeile über die ganze Breite, Tage groß genug für den Finger. */
+/* absolute an der Pille, nicht fixed: Die Teile der Kopfzeile tragen translateZ (Safari) und fangen fixed ein. */
+#hub .ht-handy .ht-blatt { position:absolute; top:calc(100% + 16px); right:0; left:auto; width:calc(100vw - 2 * var(--rand)); order:3; }
+#hub .ht-handy .ht-schleier { position:fixed; inset:0; height:var(--app-h); border-radius:0; z-index:25; }
+#hub .ht-handy .ht-tag { height:44px; font-size:17px; }
+#hub .ht-handy .ht-m { height:56px; font-size:16px; }
+#hub .ht-handy .ht-bl-titel { font-size:17px; } #hub .ht-handy .ht-bl-p { width:40px; height:32px; font-size:18px; }
+#hub .ht-handy .ht-fz { font-size:15px; padding:6px 22px 6px 0; }
+
+/* ── Leiste unten: drei Reiter, Symbol über Wort ── */
+#hub .ht-reiter { position:fixed; z-index:40; left:0; right:0; top:var(--app-h); transform:translateY(-100%);
+  display:grid; grid-template-columns:repeat(3, 1fr); padding:6px 8px calc(var(--sa-u) + 4px);
+  background:rgba(10,9,8,.88); -webkit-backdrop-filter:blur(18px) saturate(1.3); backdrop-filter:blur(18px) saturate(1.3);
+  border-top:1px solid rgba(255,255,255,.07); }
+#hub .ht-rt { display:flex; flex-direction:column; align-items:center; gap:3px; padding:5px 0 3px; border:0; background:none;
+  color:#8a8a96; font:600 10.5px -apple-system, sans-serif; min-height:48px; }
+#hub .ht-rt svg { width:25px; height:25px; fill:none; stroke:currentColor; stroke-width:1.7; stroke-linecap:round; stroke-linejoin:round; }
+#hub .ht-rt.an { color:#f2f2f5; }
+
+/* ── Reiter Tag: das iPad wird zu Karten ── */
+#hub .ht-handy .ht-grid { display:block; }
+#hub .ht-handy.r-tag .ht-heft, #hub .ht-handy .ht-padspalte > .ht-txtbtn { display:none !important; }
+#hub .ht-handy .ht-padspalte { display:block; container-type:normal; }
+#hub .ht-handy .ht-pad { aspect-ratio:auto; background:none !important; border:0 !important; box-shadow:none !important; padding:0 !important; transform:none !important; opacity:1 !important; filter:none !important; }
+#hub .ht-handy .ht-pad::before, #hub .ht-handy .ht-pad::after { display:none !important; }
+#hub .ht-handy .ht-schirm { height:auto; overflow:visible; background:none !important; border:0 !important; box-shadow:none !important;
+  padding:0 !important; border-radius:0 !important; display:flex; flex-direction:column; gap:12px; }
+#hub .ht-handy .ht-schirm > div { margin:0 !important; background:#141418; border:1px solid rgba(255,255,255,.08); border-radius:18px; padding:16px; }
+#hub .ht-handy .ht-schirm .ht-lb { font-size:11px; margin-bottom:12px; display:flex; align-items:center; gap:8px; }
+#hub .ht-handy .ht-schirm .ht-lb b { font-size:12px; }
+#hub .ht-handy .ht-bl { font-size:16px; padding:8px 0; gap:14px; }
+#hub .ht-handy .ht-bl-z { font-size:13px; min-width:44px; }
+#hub .ht-handy .ht-hr { gap:10px; flex-wrap:wrap; }
+#hub .ht-handy .ht-hk { width:46px; height:46px; font-size:21px; }
+#hub .ht-handy .ht-planwrap { flex:none; overflow:visible; }
+#hub .ht-handy .ht-mini, #hub .ht-handy .ht-planwrap .ht-leer { font-size:15px; line-height:1.5; max-height:none; overflow:visible; }
+
+/* ── Reiter Journal: das Heft als ganze Seite Papier, Stempel als Leiste ── */
+#hub .ht-handy.r-journal .ht-pad { display:none; }
+#hub .ht-handy .ht-heft { height:calc(var(--app-h) - var(--sa-o) - var(--kopf-rest, 64px) - var(--leiste) - 96px); min-height:300px;
+  background:#f3ecdf; border-radius:6px; box-shadow:0 1px 3px rgba(0,0,0,.4); }
+#hub .ht-handy .ht-heft > img { display:none; }
+#hub .ht-handy .ht-flaeche { left:20px; right:16px; top:16px; bottom:14px; }
+#hub .ht-handy .ht-ecke .ht-lupe { display:none; }
+#hub .ht-handy .ht-ecke .ht-st { font-size:11px; }
+#hub .ht-handy .ht-papierkopf { font-size:17px; }
+#hub .ht-handy .ht-ta::placeholder { -webkit-text-fill-color:#8a7d68; }
+
+/* Stempel: über der Leiste, bei offener Tastatur direkt über ihr (--vv-h/--vv-o aus app.js). */
+#hub .ht-handy.r-tag .ht-stempelreihe { display:none !important; }
+#hub .ht-handy.r-journal .ht-stempelreihe { --b:auto !important; position:fixed; z-index:35; left:0; right:0; margin:0 !important;
+  top:calc(var(--app-h) - var(--leiste)); transform:translateY(-100%); max-width:none !important;
+  display:flex !important; flex-direction:row !important; flex-wrap:nowrap !important; justify-content:center; gap:6px !important;
+  padding:8px 10px !important; background:rgba(10,9,8,.9); border-top:1px solid rgba(255,255,255,.06); }
+html.tastatur #hub .ht-handy.r-journal .ht-stempelreihe { top:calc(var(--vv-o) + var(--vv-h)); }
+html.tastatur #hub .ht-reiter { display:none; }
+#hub .ht-handy .ht-stempelreihe .ht-stempel { width:auto !important; height:auto !important; flex:1 1 0; max-width:74px; margin:0 !important;
+  transform:none !important; filter:none !important; background:none !important; box-shadow:none !important; border-radius:6px; }
+#hub .ht-handy .ht-stempelreihe .ht-stempel::before, #hub .ht-handy .ht-stempelreihe .ht-stempel::after { display:none !important; }
+#hub .ht-handy .ht-stempelreihe .ht-stempelfeld { position:static !important; inset:auto !important; display:flex !important; flex-direction:column;
+  align-items:center; gap:2px; padding:7px 2px !important; border-radius:8px !important; font-size:10px !important; letter-spacing:.06em;
+  background:#1c1c21 !important; color:#b8b8c0 !important; border:1px solid rgba(255,255,255,.08) !important; box-shadow:none !important; }
+#hub .ht-handy .ht-stempelreihe .ht-stempelfeld .e { font-size:17px !important; filter:none !important; }
+#hub .ht-handy .ht-stempelreihe .ht-stempel.ht-scharf .ht-stempelfeld { color:#fff !important; border-color:var(--farbe) !important; }
+#hub .ht-handy .ht-stempelreihe .ht-stempel-an .ht-stempelfeld { background:color-mix(in srgb, var(--farbe) 30%, #1c1c21) !important; color:#fff !important; }
+
+/* ── Reiter Habits: das Papierblatt über die ganze Breite ── */
+#hub .ht-handy .pp-blatt { width:100% !important; margin:44px 0 0 !important; }

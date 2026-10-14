@@ -1,0 +1,269 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Stempeltest</title>
+<!--
+  Testseite für die Journal-App (14.10.). Prüft am iPhone zwei Dinge, die sich am Mac nicht messen lassen:
+  1. Bleiben Tastatur und Markierung stehen, wenn man auf einen Stempel tippt? Drei Arten, den Fokus zu halten.
+  2. Liegt die Farbspur deckungsgleich unter dem Text? Zwei Schichten wie im Heft des Daily Journals.
+  Jeder Tipp wird an den Mac gemeldet (POST /messung, werkzeug/stempeltest-server.mjs) und dort mitgeschrieben.
+-->
+<style>
+  :root { --vv-h: 100vh; --vv-o: 0px; --dx: 0px; --dy: 0px; --schrift: 17px; --zh: 1.62em; }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; background: #e9e2d4; color: #35302a; font: 15px -apple-system, sans-serif; }
+  body { padding: calc(env(safe-area-inset-top) + 8px) 14px 140px; }
+  .kopf { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+  .gr { display: inline-flex; background: #d8cfbd; border-radius: 9px; padding: 2px; }
+  .gr button { border: 0; background: none; font: 600 13px -apple-system, sans-serif; color: #5c5142;
+               padding: 7px 10px; border-radius: 7px; }
+  .gr button.an { background: #fbf8f1; color: #35302a; box-shadow: 0 1px 2px rgba(0,0,0,.12); }
+  .blatt { background: #fbf8f1; border-radius: 6px; padding: 16px 16px; box-shadow: 0 1px 3px rgba(60,40,10,.18); }
+  .zone { position: relative; height: 46vh; }
+  .unterlage, textarea, .lesen {
+    font-family: "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+    font-size: var(--schrift); line-height: var(--zh); white-space: pre-wrap; overflow-wrap: anywhere;
+    letter-spacing: normal; word-spacing: normal; text-rendering: auto; }
+  .unterlage { position: absolute; inset: 0; overflow: hidden; pointer-events: none; z-index: 0;
+               color: #35302a; transform: translate(var(--dx), var(--dy)); }
+  textarea { position: absolute; inset: 0; z-index: 1; width: 100%; height: 100%; margin: 0; padding: 0;
+             border: 0; outline: 0; resize: none; background: transparent; border-radius: 0;
+             -webkit-appearance: none; appearance: none;
+             color: transparent; -webkit-text-fill-color: transparent; caret-color: #35302a; }
+  textarea::selection { background: rgba(90,72,48,.25); }
+  body.deckung textarea { color: rgba(220,20,20,.75); -webkit-text-fill-color: rgba(220,20,20,.75); }
+  .lesen { height: 46vh; overflow: auto; -webkit-user-select: text; user-select: text; }
+  .spur { background: color-mix(in srgb, var(--farbe) 22%, transparent);
+          box-shadow: inset 0 -1px 0 color-mix(in srgb, var(--farbe) 38%, transparent); }
+  .lesen .spur { -webkit-box-decoration-break: clone; box-decoration-break: clone; }
+  .leiste { position: fixed; left: 0; right: 0; z-index: 10; display: flex; gap: 6px; justify-content: center;
+            padding: 7px 8px; background: rgba(233,226,212,.94); border-top: 1px solid rgba(90,72,48,.18);
+            -webkit-user-select: none; user-select: none; }
+  .leiste.schreiben { top: calc(var(--vv-o) + var(--vv-h)); transform: translateY(-100%); }
+  .leiste.lesen-l { bottom: 0; padding-bottom: calc(env(safe-area-inset-bottom) + 7px); }
+  .stempel { border: 2px solid var(--farbe); color: var(--farbe); background: #fbf8f1; border-radius: 4px;
+             font: 800 11px -apple-system, sans-serif; letter-spacing: .08em; text-transform: uppercase;
+             padding: 8px 7px; min-width: 58px; -webkit-user-select: none; user-select: none; touch-action: manipulation; }
+  .stempel:active { background: var(--farbe); color: #fff; }
+  .regler { display: none; gap: 10px; align-items: center; margin: 8px 0 0; font-size: 13px; color: #5c5142; }
+  body.deckung .regler { display: flex; flex-wrap: wrap; }
+  .regler button { border: 0; background: #d8cfbd; border-radius: 6px; font: 600 15px -apple-system, sans-serif;
+                   width: 34px; height: 30px; color: #35302a; }
+  .regler b { min-width: 74px; display: inline-block; text-align: center; font-variant-numeric: tabular-nums; }
+  .log { margin-top: 12px; font: 12px ui-monospace, Menlo, monospace; color: #5c5142; white-space: pre-wrap; }
+  .log .ok { color: #2f6b3a; } .log .nein { color: #a02a2a; }
+  .melde { border: 0; background: #35302a; color: #fbf8f1; border-radius: 6px; padding: 7px 10px; font: 600 13px -apple-system, sans-serif; }
+</style>
+</head>
+<body>
+  <div class="kopf">
+    <div class="gr" id="modus"><button data-v="schreiben" class="an">Schreiben</button><button data-v="lesen">Lesen</button></div>
+    <div class="gr" id="halten"><button data-v="mousedown">A</button><button data-v="pointerdown" class="an">B</button><button data-v="touchstart">C</button></div>
+    <div class="gr" id="schrift"><button data-v="15">15</button><button data-v="17" class="an">17</button></div>
+    <div class="gr" id="deck"><button data-v="aus" class="an">Spur</button><button data-v="an">Deckung</button></div>
+  </div>
+
+  <div class="blatt">
+    <div class="zone" id="zone">
+      <div class="unterlage" id="unterlage"></div>
+      <textarea id="ta" spellcheck="true" autocapitalize="sentences"></textarea>
+    </div>
+    <div class="lesen" id="lesen" hidden></div>
+  </div>
+
+  <div class="regler">
+    x <button data-d="dx:-0.5">−</button><b id="dxw">0 px</b><button data-d="dx:0.5">+</button>
+    y <button data-d="dy:-0.5">−</button><b id="dyw">0 px</b><button data-d="dy:0.5">+</button>
+    <button class="melde" id="passt" style="width:auto">Passt so</button>
+  </div>
+
+  <div class="log" id="log"></div>
+
+  <div class="leiste schreiben" id="leiste"></div>
+
+<script>
+const STEMPEL = [
+  { k: 'story',  label: 'Story',  farbe: '#7a4a32' },
+  { k: 'gem',    label: 'Gem',    farbe: '#2f5d7a' },
+  { k: 'resist', label: 'Resist', farbe: '#7a2f5d' },
+  { k: 'win',    label: 'Win',    farbe: '#3f6b2f' },
+  { k: 'danke',  label: 'Danke',  farbe: '#a0742a' },
+];
+const F = Object.fromEntries(STEMPEL.map(s => [s.k, s]));
+let text = 'Heute früh aufgestanden und direkt zum Training. Die Kniebeugen gingen leichter als letzte Woche, das hat mich überrascht.\n\n'
+  + 'Mittags mit Leon telefoniert. Er hat erzählt, dass er den Job gewechselt hat, und mir ist aufgefallen, wie dankbar ich für solche Gespräche bin.\n\n'
+  + 'Am Abend wollte ich eigentlich noch am Video schneiden, habe es aber vor mir hergeschoben. Morgen als Erstes.';
+const an = (stelle, k) => { const s = text.indexOf(stelle); return { s, e: s + stelle.length, k }; };
+let marken = [ an('Heute früh aufgestanden und direkt zum Training.', 'win'), an('wie dankbar ich für solche Gespräche bin.', 'danke') ];
+const Z = { modus: 'schreiben', halten: 'pointerdown', vorher: null };
+
+const $ = (s) => document.querySelector(s);
+const ta = $('#ta'), unterlage = $('#unterlage'), lesen = $('#lesen'), leiste = $('#leiste'), logEl = $('#log');
+const esc = (t) => t.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+function zeichnen() {
+  const sortiert = [...marken].sort((a, b) => a.s - b.s);
+  let out = '', pos = 0;
+  for (const m of sortiert) {
+    if (m.s < pos) continue;
+    out += esc(text.slice(pos, m.s)) + '<span class="spur" style="--farbe:' + F[m.k].farbe + '">' + esc(text.slice(m.s, m.e)) + '</span>';
+    pos = m.e;
+  }
+  out += esc(text.slice(pos));
+  unterlage.innerHTML = out + '\n';
+  lesen.innerHTML = out;
+  unterlage.scrollTop = ta.scrollTop;
+}
+
+// Marken beim Tippen mitziehen (gemeinsamer Anfang und gemeinsames Ende, wie markNachziehen im Hub).
+function nachziehen(alt, neu) {
+  let a = 0; while (a < alt.length && a < neu.length && alt[a] === neu[a]) a++;
+  let b = 0; while (b < alt.length - a && b < neu.length - a && alt[alt.length - 1 - b] === neu[neu.length - 1 - b]) b++;
+  const altEnde = alt.length - b, delta = neu.length - alt.length;
+  const p = (x, ende) => x < a || (ende && x <= a) ? x : (x >= altEnde ? x + delta : (ende ? Math.max(a, Math.min(x, neu.length - b)) : a));
+  marken = marken.map(m => ({ ...m, s: p(m.s, false), e: p(m.e, true) })).filter(m => m.e > m.s);
+}
+ta.value = text;
+ta.addEventListener('input', () => { nachziehen(text, ta.value); text = ta.value; zeichnen(); });
+ta.addEventListener('scroll', () => { unterlage.scrollTop = ta.scrollTop; });
+
+const WORT = /[A-Za-zÄÖÜäöüß0-9]/;
+function satzUm(p) {
+  let s = 0, e = text.length;
+  for (let i = Math.min(p, text.length) - 1; i >= 0; i--) if (/[.!?\n]/.test(text[i])) { s = i + 1; break; }
+  for (let i = Math.max(p, 0); i < text.length; i++) if (/[.!?\n]/.test(text[i])) { e = text[i] === '\n' ? i : i + 1; break; }
+  while (s < e && /\s/.test(text[s])) s++;
+  return { s, e };
+}
+function saeubern(s, e) {
+  while (s < e && /\s/.test(text[s])) s++;
+  while (e > s && /\s/.test(text[e - 1])) e--;
+  while (s > 0 && WORT.test(text[s - 1]) && WORT.test(text[s])) s--;
+  while (e < text.length && WORT.test(text[e]) && WORT.test(text[e - 1])) e++;
+  return { s, e };
+}
+function stempeln(k, s, e) {
+  if (s === e) {
+    const drin = marken.find(m => m.k === k && m.s <= s && s <= m.e);
+    if (drin) { marken = marken.filter(m => m !== drin); return 'entfernt'; }
+    ({ s, e } = satzUm(s));
+  } else ({ s, e } = saeubern(s, e));
+  if (e <= s) return 'nichts';
+  marken = marken.filter(m => m.e <= s || m.s >= e);
+  marken.push({ s, e, k });
+  return 'gestempelt ' + s + '–' + e;
+}
+
+// Auswahl im Lesemodus in Textpositionen umrechnen.
+function leseAuswahl() {
+  const sel = getSelection();
+  if (!sel.rangeCount || !lesen.contains(sel.anchorNode)) return null;
+  const r = sel.getRangeAt(0);
+  const pos = (knoten, off) => { const v = document.createRange(); v.setStart(lesen, 0); v.setEnd(knoten, off); return v.toString().length; };
+  return { s: pos(r.startContainer, r.startOffset), e: pos(r.endContainer, r.endOffset), txt: sel.toString().slice(0, 40) };
+}
+
+function zustand() {
+  const vv = window.visualViewport;
+  const z = { fokus: document.activeElement === ta, vvH: vv ? Math.round(vv.height) : null, innerH: innerHeight };
+  if (Z.modus === 'schreiben') { z.s = ta.selectionStart; z.e = ta.selectionEnd; }
+  else { const a = leseAuswahl(); z.auswahl = a ? a.s + '–' + a.e : null; z.txt = a ? a.txt : ''; }
+  return z;
+}
+
+function melden(eintrag) {
+  eintrag.zeit = new Date().toLocaleTimeString('de-DE');
+  eintrag.ua = navigator.userAgent.replace(/^.*?\(/, '(').slice(0, 60);
+  eintrag.app = navigator.standalone === true;
+  fetch('/messung', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(eintrag) }).catch(() => {});
+}
+function zeile(html) { logEl.innerHTML = html + '\n' + logEl.innerHTML.split('\n').slice(0, 7).join('\n'); }
+
+function leisteBauen() {
+  leiste.innerHTML = STEMPEL.map(s => '<button class="stempel" data-k="' + s.k + '" style="--farbe:' + s.farbe + '">' + s.label + '</button>').join('');
+  leiste.querySelectorAll('.stempel').forEach(b => {
+    // Den Zustand VOR dem Tipp merken: Ändert der Tipp Fokus oder Auswahl, sieht man es im Vergleich.
+    const merken = () => { Z.vorher = zustand(); };
+    b.addEventListener('touchstart', (e) => { merken(); if (Z.halten === 'touchstart') e.preventDefault(); }, { passive: false });
+    b.addEventListener('pointerdown', (e) => { if (!Z.vorher) merken(); if (Z.halten === 'pointerdown') e.preventDefault(); });
+    b.addEventListener('mousedown', (e) => { if (!Z.vorher) merken(); if (Z.halten === 'mousedown') e.preventDefault(); });
+    // Bei touchstart+preventDefault feuert Safari kein click mehr, deshalb dort touchend.
+    const ausloesen = () => {
+      const vorher = Z.vorher || zustand(); Z.vorher = null;
+      const jetzt = zustand();
+      let ergebnis;
+      if (Z.modus === 'schreiben') {
+        ergebnis = stempeln(b.dataset.k, jetzt.s, jetzt.e);
+        const cur = jetzt.e;
+        zeichnen();
+        if (jetzt.fokus) { try { ta.setSelectionRange(cur, cur); } catch (e) {} }
+      } else {
+        const a = leseAuswahl();
+        ergebnis = a && a.e > a.s ? stempeln(b.dataset.k, a.s, a.e) : 'keine Auswahl';
+        zeichnen(); getSelection().removeAllRanges();
+      }
+      setTimeout(() => {
+        const spaeter = zustand();
+        const tastaturBlieb = Z.modus === 'schreiben' ? (vorher.fokus && spaeter.fokus && Math.abs((spaeter.vvH || 0) - (vorher.vvH || 0)) < 30) : null;
+        const auswahlBlieb = Z.modus === 'schreiben'
+          ? (vorher.s === jetzt.s && vorher.e === jetzt.e)
+          : (vorher.auswahl !== null && vorher.auswahl === jetzt.auswahl);
+        const eintrag = { test: 'tipp', modus: Z.modus, halten: Z.halten, stempel: b.dataset.k, ergebnis, vorher, beimTipp: jetzt, danach: spaeter, tastaturBlieb, auswahlBlieb };
+        melden(eintrag);
+        const j = (v) => v === null ? '–' : '<span class="' + (v ? 'ok' : 'nein') + '">' + (v ? 'ja' : 'nein') + '</span>';
+        zeile(Z.halten.slice(0, 5) + ' · ' + Z.modus + ' · Tastatur ' + j(tastaturBlieb) + ' · Auswahl ' + j(auswahlBlieb) + ' · ' + esc(ergebnis));
+      }, 450);
+    };
+    b.addEventListener('click', ausloesen);
+    b.addEventListener('touchend', (e) => { if (Z.halten === 'touchstart') { e.preventDefault(); ausloesen(); } });
+  });
+}
+
+// Leiste über der Tastatur: sichtbarer Ausschnitt statt Seite (wie --vv-h/--vv-o in app.js).
+function vvSetzen() {
+  const vv = window.visualViewport; if (!vv) return;
+  document.documentElement.style.setProperty('--vv-h', vv.height + 'px');
+  document.documentElement.style.setProperty('--vv-o', vv.offsetTop + 'px');
+}
+if (window.visualViewport) { visualViewport.addEventListener('resize', vvSetzen); visualViewport.addEventListener('scroll', vvSetzen); }
+vvSetzen();
+
+function gruppe(id, fn) {
+  const g = $(id);
+  g.querySelectorAll('button').forEach(b => b.addEventListener('click', () => {
+    g.querySelectorAll('button').forEach(x => x.classList.toggle('an', x === b)); fn(b.dataset.v);
+  }));
+}
+gruppe('#modus', (v) => {
+  Z.modus = v;
+  $('#zone').hidden = v !== 'schreiben'; lesen.hidden = v !== 'lesen';
+  leiste.className = 'leiste ' + (v === 'schreiben' ? 'schreiben' : 'lesen-l');
+  if (v === 'lesen') ta.blur();
+  zeichnen();
+});
+gruppe('#halten', (v) => { Z.halten = v; });
+gruppe('#schrift', (v) => { document.documentElement.style.setProperty('--schrift', v + 'px'); });
+gruppe('#deck', (v) => { document.body.classList.toggle('deckung', v === 'an'); });
+
+const V = { dx: 0, dy: 0 };
+document.querySelectorAll('.regler [data-d]').forEach(b => b.addEventListener('click', () => {
+  const [k, d] = b.dataset.d.split(':'); V[k] = Math.round((V[k] + Number(d)) * 2) / 2;
+  document.documentElement.style.setProperty('--' + k, V[k] + 'px');
+  $('#' + k + 'w').textContent = V[k] + ' px';
+}));
+$('#passt').addEventListener('click', () => {
+  const cs = getComputedStyle(ta);
+  melden({ test: 'deckung', dx: V.dx, dy: V.dy, schrift: getComputedStyle(document.documentElement).getPropertyValue('--schrift').trim(),
+           taPadding: cs.padding, taIndent: cs.textIndent, taBreite: ta.clientWidth, unterlageBreite: unterlage.clientWidth });
+  zeile('Deckung gemeldet: x ' + V.dx + ' · y ' + V.dy);
+});
+
+leisteBauen();
+zeichnen();
+melden({ test: 'start', breite: innerWidth, hoehe: innerHeight, dpr: devicePixelRatio });
+</script>
+</body>
+</html>

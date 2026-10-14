@@ -1,16 +1,16 @@
-# MindOS-Apps — Arbeitsplatz (Training, Küche)
+# MindOS-Apps — Arbeitsplatz (Training, Küche, Journal)
 
 Hubs aus dem Vault als Web-Apps fürs iPhone, je Hub ein Symbol auf dem Startbildschirm, kein App Store.
 **Die Apps haben keinen eigenen Hub-Code.** Sie laden den Hub aus dem Vault-Repo auf GitHub und führen dessen
 DataviewJS-Block aus. `app.js` bildet nur die Obsidian-Stellen nach, die die Hubs benutzen, und ist für alle
 Apps **eine** Datei.
 
-| | Training | Küche |
-|---|---|---|
-| Adresse | `/training/` | `/kitchen/` |
-| Hub | `02 Life OS/Training Hub.md` | `02 Life OS/Ernährung/Kitchen Hub.md` |
-| Welche Dateien | `window.HUB_APP` in `training/index.html` | `window.HUB_APP` in `kitchen/index.html` |
-| Handy-Layout | `training/mobil.css` | `kitchen/mobil.css` |
+| | Training | Küche | Journal |
+|---|---|---|---|
+| Adresse | `/training/` | `/kitchen/` | `/journal/` |
+| Hub | `02 Life OS/Training Hub.md` | `02 Life OS/Ernährung/Kitchen Hub.md` | `02 Life OS/Daily Journal.md` |
+| Welche Dateien | `window.HUB_APP` in `training/index.html` | `window.HUB_APP` in `kitchen/index.html` | `window.HUB_APP` in `journal/index.html` |
+| Handy-Layout | `training/mobil.css` | `kitchen/mobil.css` | `journal/mobil.css` |
 
 Gemeinsam: `app.js`, `basis.css` (Seite, Statusleiste, Einrichten, Leser), `sw.js` (eine Hülle für alle), `vendor/`,
 `index.html` (Übersicht mit allen Apps). **Kopfknöpfe** (✕ ‹ ⌄ ✓ in Blatt- und Laufköpfen) sind in beiden Apps 40 px mit Zeichen 20 px, Form über `--kopf-r` in `basis.css` (abgerundet, seit 13.10.). **Blätter wegwischen** (`app.js`, Abschnitt „Blätter: wegwischen mit der ganzen Fläche“, seit `apps-v39`): an der ganzen Fläche von `#tr-dlg` (ohne `.lauf`), `#ml-prep-inner` und seit `apps-v43` dem Leser `#leser .le-blatt` (Rezept-Ansicht, Kochlauf; Wischen = ✕, der Kochlauf pausiert nur; der Leser trägt ebenfalls `.lauf`, ausgenommen ist deshalb ausdrücklich nur `#tr-dlg.lauf`), sobald der scrollbare Bereich unter dem Finger oben steht; sonst scrollt er. Solange ein Blatt offen ist, wird jedes `touchmove` am Hintergrund und am Scrollende im Blatt verhindert. Nach einem Zug wird der folgende Klick geschluckt, **vor dem eigenen Schließ-Klick wird die Sperre aufgehoben** (`apps-v40`: sonst schluckte sie das Schließen, das Blatt sprang zurück). **Entschieden wird beim ersten `touchmove`** (`apps-v41`): Safari legt dort fest, ob es scrollt, ein späterer Eingriff greift nicht mehr. Ohne scrollbaren Bereich unter dem Finger wird jede Bewegung im Blatt verhindert. Eingabefelder sind nur ausgenommen, solange in ihnen getippt wird (fokussiert), sonst sind sie Fläche. Klicks werden nur nach einem Zug über 10 px geschluckt. **Schließen nach Tempo beim Loslassen** (`apps-v42`, wie iOS): Tempo über die letzten 100 ms (`g.spur`), Pause vor dem Loslassen = 0. Zu bei > 0,5 px/ms nach unten (ab 20 px) oder über die halbe Blatthöhe; nach oben (< −0,1) nie. Prüfen mit nachgestellter Uhr (`Date.now` überschreiben), ein Hintergrund-Tab bremst echte Timer auf 1 s. Beim Prüfen mit echtem Zeitablauf ziehen (Pausen zwischen den Ereignissen), ein Zug in einem Rutsch verdeckte den Fehler. Ein neues Blatt bekommt das, wenn es in `BLATT` eingetragen wird. Mit nachgestellten Touch-Ereignissen in Chrome prüfbar (`new Touch`, `new TouchEvent`). Eine neue App = ein neuer Ordner mit `index.html`, `mobil.css`, Manifest, Symbolen
@@ -44,15 +44,16 @@ Der Schlüssel (`tr-konf`) gilt für beide, alles andere im Speicher trägt das 
   `modify` hängt an, wenn der neue Text mit dem alten beginnt, sonst schreibt es um (`art:'ersetzen'`) — mit dem
   sha, auf dem die Änderung beruht. Lehnt GitHub ab (409/422), wird nichts überschrieben: Die Fassung landet unter
   `<kürzel>-nicht` und steht oben in der Leiste. Löschen (`trash`, `trashFile`) genauso, mit sha.
-  `processFrontMatter` ändert **nur die betroffene Zeile** (kein Neuschreiben des YAML, sonst Format-Drift),
-  Listen verweigert es. Am Hub selbst wirft es: den aktiven Plan stellt nur der Mac um.
+  `processFrontMatter` ändert **nur die betroffene Zeile** (kein Neuschreiben des YAML, sonst Format-Drift).
+  Einfache Listen schreibt es seit 14.10. wie Obsidian (`  - wert`, leer `[]`, gebraucht für `habits_archiviert`),
+  Verschachteltes verweigert es. Am Hub selbst wirft es: den aktiven Plan stellt nur der Mac um.
   **Schreiblogik geändert? Danach `node werkzeug/schreibtest.mjs`** (schnelle Haken, Funkloch, Mac hat inzwischen
   geändert, Anhängen, alte Einträge ohne id, echter Fehler). Läuft gegen ein nachgebautes GitHub, ohne Netz.
 - **Neuaufbau nach dem Schreiben wartet auf den Dialog (seit 11.10.):** `neuStarten` baut erst neu auf, wenn `APP.wartet()`
   nein sagt (Küche: `#ml-prep-modal` offen), höchstens nach 1,6 s. Vorher riss der Neuaufbau den Dialog nach 60 ms weg,
   die Meldung „… eingetragen“ war nie zu sehen. Eine App ohne `wartet` baut wie bisher nach 60 ms neu auf.
 - **Safari-Eigenheiten am iPhone (seit 13.10., `apps-v29`):** **Kopfzeilen stehen fest (`fixed`), nicht angeheftet (`sticky`)** (`apps-v30`): Bei `sticky` verlor Safari beim Scrollen nach und nach den Inhalt (erst die Flamme, dann den Chip, dann den Titel), auch mit der Unschärfe auf `::before`. Den Platz hält `--kopf-rest` frei (`apps-v37`): gemessen in `app.js` wird nur die Höhe **unter** dem oberen Polster, den Rand der Statusleiste rechnet das CSS dazu. **Das allein reichte nicht** (`apps-v38`): Beim Start zeichnete Safari den Inhalt trotzdem unter die Kopfzeile, ein Neuaufbau (z. B. Tag verschieben) reparierte es. Deshalb baut `nachbauen()` die Ansicht 0,7 und 2 s nach dem Start einmal neu auf, nur wenn kein Blatt, Lauf, Rad, Leser oder Eingabefeld offen ist. Vorher (`--kopf-h`, ganze Höhe) war die Messung beim Start zu klein, weil Safari den Rand erst später lieferte, der Inhalt steckte unter der Kopfzeile, bis ein Neuaufbau neu maß. **Jedes Kind der Kopfzeile bekommt `transform:translateZ(0)`** (`apps-v33`): Safari (iOS 26) verlor beim Scrollen den normal gezeichneten Inhalt, nur Teile mit eigener Zeichenebene blieben (beobachtet: Chip mit animierter Flamme blieb, Titel verschwand). Die Unschärfe liegt weiter auf `::before`, nie auf der Zeile selbst (Safari 26 färbt seine Leisten nach festen Elementen am Rand). Die Leiste unten: siehe „Kein Zoomen“ weiter unten (iOS-26-Fehler, `--app-h`).
-- **Kein Zoomen (seit 13.10.):** `touch-action:pan-x pan-y` in `basis.css` und `gesturestart` abgefangen in `app.js`. **Kein `maximum-scale`/`user-scalable=no` im Viewport** (`apps-v31`): Damit rechnete Safari die Seite in der Startbildschirm-App um die Statusleiste zu kurz (`clientHeight` 762 statt 812), feste Leisten unten schwebten und Kopfzeilen rutschten weg. Der Viewport-Eintrag war es **nicht** (v31 ohne ihn, Fehler unverändert). **Ursache ist ein Fehler von iOS 26:** Eine Startbildschirm-App bekommt beim Start eine um die Statusleiste zu kurze Seite (`innerHeight` 763 statt 812), bis man scrollt. **Deshalb hängt seit `apps-v32` nichts mehr an `bottom:0`:** Leisten, Rad und Blätter stehen von oben mit `--app-h` (`basis.css`, in der App `min(100lvh, 100dvh + Sicherheitsrand oben)`, gesetzt über `html.ios-app`), verankert mit `top:var(--app-h); transform:translateY(-100%)`. **Neue feste Elemente unten genauso bauen.** *(Ein Ausgleich `--doc-versatz` = innerHeight − clientHeight war in `apps-v35` drin und falsch: Er erzeugte eine feste Lücke von genau diesem Betrag. Wieder entfernt in `apps-v36`. Die einmal beobachtete Überlappung des Inhalts unter der Kopfzeile ist ungeklärt.)* Quellen: GitHub-PRs AltanS/collie #355, Mereithhh/very-happy #479. **Kein Markieren (seit 13.10.):** `user-select:none` auf `html` in `basis.css`, Eingabefelder ausgenommen.
+- **Kein Zoomen (seit 13.10.):** `touch-action:pan-x pan-y` in `basis.css` und `gesturestart` abgefangen in `app.js`. **Kein `maximum-scale`/`user-scalable=no` im Viewport** (`apps-v31`): Damit rechnete Safari die Seite in der Startbildschirm-App um die Statusleiste zu kurz (`clientHeight` 762 statt 812), feste Leisten unten schwebten und Kopfzeilen rutschten weg. Der Viewport-Eintrag war es **nicht** (v31 ohne ihn, Fehler unverändert). **Ursache ist ein Fehler von iOS 26:** Eine Startbildschirm-App bekommt beim Start eine um die Statusleiste zu kurze Seite (`innerHeight` 763 statt 812), bis man scrollt. **Deshalb hängt seit `apps-v32` nichts mehr an `bottom:0`:** Leisten, Rad und Blätter stehen von oben mit `--app-h` (`basis.css`, in der App `min(100lvh, 100dvh + Sicherheitsrand oben)`, gesetzt über `html.ios-app`), verankert mit `top:var(--app-h); transform:translateY(-100%)`. **Neue feste Elemente unten genauso bauen.** *(Ein Ausgleich `--doc-versatz` = innerHeight − clientHeight war in `apps-v35` drin und falsch: Er erzeugte eine feste Lücke von genau diesem Betrag. Wieder entfernt in `apps-v36`. Die einmal beobachtete Überlappung des Inhalts unter der Kopfzeile ist ungeklärt.)* Quellen: GitHub-PRs AltanS/collie #355, Mereithhh/very-happy #479. **Eingabefelder mindestens 16 px Schrift** (gemessen 14.10.): Darunter zoomt Safari beim Antippen hinein, `touch-action` verhindert das nicht. **Kein Markieren (seit 13.10.):** `user-select:none` auf `html` in `basis.css`, Eingabefelder ausgenommen.
 - **Tastatur am iPhone (seit 11.10.):** Sie verkleinert nur den sichtbaren Ausschnitt, nicht die Seite. Ein Blatt, das unten
   klebt, schrumpft beim Filtern von oben, und das Suchfeld rutscht hinter die Tastatur. `app.js` setzt deshalb `--vv-h`, `--vv-o`
   und `html.tastatur`, die `mobil.css` setzt das Blatt damit fest (Küche: `#ml-prep-modal`). Solange ein Textfeld im Hub den Fokus
@@ -71,6 +72,13 @@ Der Schlüssel (`tr-konf`) gilt für beide, alles andere im Speicher trägt das 
   nennen. **Die `.wasm` muss zur Version passen, die in der `.js` steht** (heute zxing-wasm 3.1.3): Beim Aktualisieren beide aus
   `npm pack barcode-detector` bzw. `npm pack zxing-wasm@<Version>` holen. Prüfen ohne Handy: `werkzeug/barcode-testfoto.py`
   zeichnet einen Strichcode als unscharfes, schräges „Foto“; im Testserver über `DataTransfer` ins Dateifeld `#ml-plan-scan` legen.
+- **Journal (seit 14.10.):** Der Hub zeichnet am Handy selbst drei Reiter (`HANDY` im Hub = `app.isMobile` und `window.HUB_APP`,
+  Obsidian am iPhone behält die Szene), `journal/mobil.css` macht daraus Kopfzeile, Karten, ganzseitiges Heft, Stempelleiste
+  über der Tastatur (`--vv-h`/`--vv-o`) und Leiste unten. Das Heft ist am Handy immer beschreibbar: Safari öffnet die Tastatur nur
+  bei einem echten Tipp ins Feld, ein `focus()` nach dem Neuaufbau reicht dort nicht. Für das Journal kamen in `shim()` dazu:
+  `dv.date` (nur Tag, plus/minus Tage, `yyyy-MM-dd`, `weekday`), `file.size`, `vault.process`, `APP.bilder` (Heftblatt und
+  Schrift stehen in keinem Frontmatter, auch eine `.ttf` geht diesen Weg). Gemessen am iPhone mit `werkzeug/stempeltest.html`:
+  `mousedown` + `preventDefault` hält Tastatur und Markierung auch in Safari, die Farbspur liegt ohne Versatz unter dem Text.
 - **Bilder** sucht die App im Frontmatter der geladenen Notizen (z. B. `banner:`), holt sie einmal und legt sie
   im Cache-Speicher des Browsers ab (nicht im localStorage, der hat nur wenige MB). Ein Bild, dessen Pfad nicht
   stimmt, fehlt am Handy genauso wie im Hub am Mac.

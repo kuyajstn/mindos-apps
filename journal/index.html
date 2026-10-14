@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0c0c0f">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Journal">
+<title>Journal</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png?v=1">
+<link rel="stylesheet" href="../basis.css">
+<link rel="stylesheet" href="mobil.css">
+<script>
+// Welcher Hub, welche Dateien. Der Code der App (../app.js) ist derselbe wie bei Training und Küche.
+window.HUB_APP = {
+  name:'Journal', commit:'Journal-App', praefix:'jo', sw:'../sw.js',
+  hub:'02 Life OS/Daily Journal.md',
+  dateien:['02 Life OS/Habits.md', '02 Life OS/Context Justin/Tagesstruktur & Routinen.md',
+           '99 System/Utility/Templates/Daily Note.md'],
+  // Training Logs: Ein geloggtes Training setzt das Sport-Kreuz der Habits von selbst.
+  ordner:['02 Life OS/Daily Journal', '02 Life OS/Training Logs'],
+  // Heftblatt und Schrift der Habits stehen in keinem Frontmatter.
+  bilder:['99 System/Attachements/journal-blatt.png', '99 System/Attachements/PatrickHand-Regular.ttf'],
+};
+</script>
+</head>
+<body>
+<div id="status"></div>
+<main id="hub"></main>
+<section id="einrichten" hidden>
+  <div class="ein-karte">
+    <span class="ein-av"><svg viewBox="0 0 24 24"><path d="M6 3.5h10.5a1.5 1.5 0 0 1 1.5 1.5v14a1.5 1.5 0 0 1-1.5 1.5H6zM6 3.5v17M9.5 8h5M9.5 11.5h5"/></svg></span>
+    <h1>Journal</h1>
+    <form id="ein-form" autocomplete="off">
+      <label>GitHub-Schlüssel<input name="token" type="password" placeholder="github_pat_…" required></label>
+      <label>Repo<input name="repo" type="text" autocapitalize="off" spellcheck="false"></label>
+      <p id="ein-meldung"></p>
+      <button type="submit">Verbinden</button>
+    </form>
+    <small>Der Schlüssel bleibt nur auf diesem Gerät.</small>
+  </div>
+</section>
+<script src="../vendor/moment.min.js"></script>
+<script src="../app.js"></script>
+</body>
+</html>

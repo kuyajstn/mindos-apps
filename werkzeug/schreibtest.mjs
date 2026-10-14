@@ -35,12 +35,12 @@ const ls = {}; const localStorage = { getItem:k => k in ls ? ls[k] : null, setIt
 const el = () => ({ addEventListener(){}, replaceChildren(){}, appendChild(){}, insertAdjacentHTML(){}, querySelectorAll:() => [], style:{}, hidden:false });
 const document = { getElementById: el, createElement: el, addEventListener(){} };
 const window = { addEventListener(){} }; const location = { hostname:'localhost', search:'' };
-const navigator = {}; class MutationObserver { observe(){} }
+const navigator = {}; class MutationObserver { observe(){} } class ResizeObserver { observe(){} unobserve(){} }
 const HUB = '02 Life OS/Training Hub.md', ZC = '02 Life OS/Ernährung/Zutaten Check.md', KD = '02 Life OS/Körperdaten.md';
 setze(HUB, '```dataviewjs\n```\n'); setze(ZC, '---\nx: 1\n---\n- Skyr :: fehlt :: 2026-10-09\n- Eier :: fehlt :: 2026-10-09\n'); setze(KD, '# K\n- a\n');
-const A = new Function('fetch','localStorage','document','window','location','navigator','MutationObserver','moment',
+const A = new Function('fetch','localStorage','document','window','location','navigator','MutationObserver','ResizeObserver','moment',
   code + '\n;return { shim, laden, warteschlangeAbarbeiten, zusammensetzen, get dateien(){ return dateien; }, K_WARTE, K_NICHT, K_CACHE, lies, merke, aktualisieren };')
-  (fetch, localStorage, document, window, location, navigator, MutationObserver, () => ({}));
+  (fetch, localStorage, document, window, location, navigator, MutationObserver, ResizeObserver, () => ({}));
 const ok = (b, m) => { console.log((b ? '✓ ' : '✗ ') + m); if (!b) process.exitCode = 1; };
 const warte = ms => new Promise(r => setTimeout(r, ms));
 // Seit 09.10. kehrt ein Tipp sofort zurück und sendet im Hintergrund: Vor jeder Prüfung abwarten.
@@ -129,8 +129,20 @@ ok(gh[DN].text === '---\ntype: journal\nsport: true\npause: true\n---\nText\n', 
 const { app: app5 } = A.shim(el());
 await app5.fileManager.processFrontMatter(app5.vault.getAbstractFileByPath(DN), fm => { delete fm.pause; }); await fertig();
 ok(gh[DN].text === '---\ntype: journal\nsport: true\n---\nText\n', '10 Pausetag entfernt, Datei wie vorher');
-let f10 = null; try { await app5.fileManager.processFrontMatter(app5.vault.getAbstractFileByPath(R), fm => { fm.tags = ['a']; }); } catch (e) { f10 = e; }
-ok(f10 && /am Mac/.test(f10.message), '10 Listen im Frontmatter werden verweigert statt verbogen');
+let f10 = null; try { await app5.fileManager.processFrontMatter(app5.vault.getAbstractFileByPath(R), fm => { fm.tags = ['a']; }); } catch (e) { f10 = e; } await fertig();
+ok(f10 === null && gh[R].text.includes('\ntags:\n  - a\nbanner:'), '10 einfache Liste wie Obsidian geschrieben (seit 14.10.)');
+let f10b = null; try { await app5.fileManager.processFrontMatter(app5.vault.getAbstractFileByPath(R), fm => { fm.tags = [{ a:1 }]; }); } catch (e) { f10b = e; }
+ok(f10b && /am Mac/.test(f10b.message), '10 Verschachteltes im Frontmatter wird verweigert statt verbogen');
+// 10b Habit pausieren und wieder aufnehmen (habits_archiviert in Habits.md)
+const HA = '02 Life OS/Habits.md';
+setze(HA, '---\ntype: liste\nhabits:\n  - sport\n  - vision\nhabits_archiviert:\n  - kein_nikotin\nhabits_ab:\n  meditate: 06:00\n---\nText\n');
+{ const c = A.lies(A.K_CACHE); c[HA] = { ...gh[HA] }; A.merke(A.K_CACHE, c); A.zusammensetzen(); }
+const { app: app5b } = A.shim(el());
+await app5b.fileManager.processFrontMatter(app5b.vault.getAbstractFileByPath(HA), fm => { fm.habits_archiviert = [...fm.habits_archiviert, 'vision']; }); await fertig();
+ok(gh[HA].text === '---\ntype: liste\nhabits:\n  - sport\n  - vision\nhabits_archiviert:\n  - kein_nikotin\n  - vision\nhabits_ab:\n  meditate: 06:00\n---\nText\n', '10b Habit pausiert, Rest Byte für Byte gleich');
+const { app: app5c } = A.shim(el());
+await app5c.fileManager.processFrontMatter(app5c.vault.getAbstractFileByPath(HA), fm => { fm.habits_archiviert = []; }); await fertig();
+ok(gh[HA].text.includes('\nhabits_archiviert: []\nhabits_ab:\n  meditate: 06:00\n'), '10b leere Liste als [], wie Obsidian');
 // 11 Löschen: online, mit Konflikt, offline angelegt und gelöscht
 const MP = '02 Life OS/Ernährung/Meal Plan/2026-10-09 Skyr.md';
 setze(MP, '---\ntype: mealplan\ndone: false\n---\n');
