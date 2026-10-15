@@ -1228,26 +1228,22 @@ if (konf()) start(); else einrichten();
 
 // ── Kein Hover am iPhone (15.10.) ───────────────────────────────
 // Safari hält :hover nach einem Tipp fest, bis man woanders hintippt: Knöpfe, Zeilen und Felder blieben eingefärbt
-// stehen. Statt jede Regel in jedem Hub einzeln in @media (hover:hover) zu packen, streichen die Apps alle Hover-Regeln,
-// sobald ein Hub (oder der Leser) ein <style> zeichnet. Gilt damit für jede App, auch künftige. Was nur beim Drüberfahren
-// erscheint, braucht im Hub weiterhin seine eigene Regel für (hover:none). Testmodus: ?ohnehover am Mac.
+// stehen. Die Apps machen deshalb aus jeder Hover-Regel eine :active-Regel, sobald ein Hub (oder der Leser) ein <style>
+// zeichnet: dieselbe Rückmeldung, aber nur solange der Finger liegt (Justin, 15.10.: ganz streichen nahm jede Rückmeldung).
+// Gilt für jede App, auch künftige. Was nur beim Drüberfahren erscheint, braucht im Hub weiterhin seine Regel für
+// (hover:none). Testmodus: ?ohnehover am Mac.
 (() => {
   const AN = matchMedia('(hover: none)').matches || (DEV && new URLSearchParams(location.search).has('ohnehover'));
   if (!AN) return;
-  // Selektorliste an den Kommas teilen, aber nicht innerhalb von Klammern (:not(a, b), :is(…)).
-  const teilen = sel => { const out = []; let tiefe = 0, akt = '';
-    for (const z of sel) { if (z === '(') tiefe++; if (z === ')') tiefe--; if (z === ',' && !tiefe) { out.push(akt.trim()); akt = ''; } else akt += z; }
-    if (akt.trim()) out.push(akt.trim()); return out; };
-  const raus = (traeger, regeln) => {
-    for (let i = regeln.length - 1; i >= 0; i--) {
-      const r = regeln[i];
-      if (!r.selectorText) { if (r.cssRules) raus(r, r.cssRules); continue; }   // @media, @supports …
-      if (!r.selectorText.includes(':hover')) continue;
-      const rest = teilen(r.selectorText).filter(s => !s.includes(':hover'));
-      if (rest.length) r.selectorText = rest.join(', '); else traeger.deleteRule(i);
+  // Safari zeigt :active nur, wenn die Seite auf Berührungen hört.
+  document.addEventListener('touchstart', () => {}, { passive:true });
+  const umschreiben = regeln => {
+    for (const r of regeln) {
+      if (!r.selectorText) { if (r.cssRules) umschreiben(r.cssRules); continue; }   // @media, @supports …
+      if (r.selectorText.includes(':hover')) r.selectorText = r.selectorText.replace(/:hover\b/g, ':active');
     }
   };
-  const alle = () => { geplant = false; for (const sh of document.styleSheets) { let r; try { r = sh.cssRules; } catch (e) { continue; } raus(sh, r); } };
+  const alle = () => { geplant = false; for (const sh of document.styleSheets) { let r; try { r = sh.cssRules; } catch (e) { continue; } umschreiben(r); } };
   let geplant = false;
   // Gleich nach dem Zeichnen, nicht im nächsten Bild: requestAnimationFrame läuft in einem Tab im Hintergrund nicht.
   const planen = () => { if (!geplant) { geplant = true; queueMicrotask(alle); } };
