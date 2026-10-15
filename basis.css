@@ -50,9 +50,12 @@ body.le-offen { overflow:hidden; }
   border-radius:22px 22px 0 0; border-top:1px solid rgba(255,255,255,.08); animation:le-hoch .22s cubic-bezier(.2,.8,.2,1); }
 @keyframes le-hoch { from { transform:translateY(40px); } }
 /* Griff am Leser (Rezept-Ansicht, Kochlauf), wie an den übrigen Blättern (13.10.) */
-#leser .le-blatt > .griff { flex:none; width:38px; height:5px; border-radius:3px; background:rgba(255,255,255,.2); margin:8px auto 0; }
-#leser .le-blatt > .griff + .le-kopf { padding-top:10px; }
-#leser .le-blatt > .griff + .lauf-kopf { padding-top:12px !important; }
+/* Griff und ✕ in jedem Blatt an derselben Stelle (15.10., Justin: wechselnde Abstände zum Rand): Griff 8 px unter der
+   Kante, frei schwebend, ✕ 16 px von oben und rechts. Gilt auch für die Blätter der Küche (kitchen/mobil.css). */
+#leser .le-blatt { position:relative; }
+#leser .le-blatt > .griff { position:absolute; top:8px; left:50%; transform:translateX(-50%); z-index:3; width:38px; height:5px; border-radius:3px; background:rgba(255,255,255,.2); margin:0; }
+#leser .le-blatt > .griff + .le-kopf { padding-top:16px; padding-right:16px; }
+#leser .le-blatt > .griff + .lauf-kopf { padding-top:16px !important; }
 .le-kopf { display:flex; align-items:center; gap:12px; padding:16px 16px 10px 20px; }
 .le-kopf b { flex:1; font:700 19px/1.25 -apple-system,sans-serif; letter-spacing:-.01em; }
 /* Kopfknöpfe (✕ ‹ ⌄ ✓) in allen Apps gleich: 40 px, abgerundet wie Kacheln und Felder (Justin, 13.10.).
@@ -66,7 +69,7 @@ html.ios-app { --app-h:min(100lvh, calc(100dvh + env(safe-area-inset-top))); }
 .le-zu { flex:none; width:40px; height:40px; display:grid; place-items:center; padding:0; border-radius:var(--kopf-r); border:0; background:#26231f; color:#b0a79c; font:600 15px -apple-system,sans-serif; position:relative; }
 .le-zu svg { width:20px; height:20px; }
 .le-zu::after { content:''; position:absolute; inset:-5px; }
-.le-inhalt { overflow:auto; overscroll-behavior:contain; padding:0 20px calc(var(--sa-u) + 28px); font-size:16px; line-height:1.55; }
+.le-inhalt { overflow-x:hidden; overflow-y:auto; overscroll-behavior:contain; padding:0 20px calc(var(--sa-u) + 28px); font-size:16px; line-height:1.55; }
 .le-banner { display:block; width:100%; aspect-ratio:16/10; object-fit:cover; border-radius:16px; margin:2px 0 14px; }
 .le-inhalt img { max-width:100%; border-radius:12px; }
 .le-inhalt h2, .le-inhalt h3, .le-inhalt h4 { font:700 17px/1.3 -apple-system,sans-serif; margin:22px 0 8px; }
@@ -98,9 +101,11 @@ html.ios-app { --app-h:min(100lvh, calc(100dvh + env(safe-area-inset-top))); }
 .le-mehr summary::-webkit-details-marker { display:none; }
 .le-mehr summary::after { content:' ›'; }
 .le-mehr[open] summary::after { content:' ⌄'; }
-.le-tab { overflow-x:auto; margin:8px -20px; padding:0 20px; }
-.le-tab table { border-collapse:collapse; font-size:13px; line-height:1.35; min-width:100%; }
-.le-tab td { padding:7px 8px 7px 0; border-bottom:1px solid rgba(255,255,255,.06); color:#d6d0c8; white-space:nowrap; }
+.le-tab { margin:8px 0; }
+/* Tabellen passen ins Blatt und brechen um, statt seitlich zu laufen (15.10.): Der Rand von −20 px war im Kochlauf (16 px Polster)
+   breiter als das Blatt, das ganze Blatt ließ sich dann nach links und rechts wischen. */
+.le-tab table { border-collapse:collapse; font-size:13px; line-height:1.35; width:100%; }
+.le-tab td { padding:7px 8px 7px 0; border-bottom:1px solid rgba(255,255,255,.06); color:#d6d0c8; overflow-wrap:anywhere; }
 .le-tab tr:first-child td { color:#8a8177; font-weight:600; font-size:11.5px; text-transform:uppercase; letter-spacing:.04em; }
 .le-tab td:first-child { white-space:normal; min-width:130px; }
 

@@ -115,8 +115,10 @@ html.tastatur #hub .kh #ml-prep-inner { height:calc(var(--vv-h) - 12px); max-hei
 /* Kopfknöpfe in beiden Apps gleich (13.10.): 40 px, Form aus basis.css (--kopf-r), Zeichen 20 px */
 #hub .kh button.kh-close, #leser .kh button.kh-close, #hub .kh button.kt-blatt-zu { width:40px; height:40px; border-radius:var(--kopf-r); }
 #hub .kh button.kh-close svg, #leser .kh button.kh-close svg, #hub .kh button.kt-blatt-zu svg { width:20px; height:20px; }
-#hub .kh button.kh-close.kh-x { top:12px; right:12px; }
-#hub #ml-prep-inner > .griff { width:38px; height:5px; border-radius:3px; background:rgba(255,255,255,.2); margin:-6px auto 10px; }
+/* Griff 8 px unter der Kante, ✕ 16 px von oben und rechts, in jedem Blatt gleich (15.10., wie der Leser in basis.css). */
+#hub .kh #ml-prep-inner { padding-top:16px !important; }
+#hub .kh button.kh-close.kh-x { top:16px; right:16px; }
+#hub #ml-prep-inner > .griff { position:absolute; top:8px; left:50%; transform:translateX(-50%); z-index:4; width:38px; height:5px; border-radius:3px; background:rgba(255,255,255,.2); margin:0; }
 
 /* Scrollen im Blatt nie an den Hintergrund weiterreichen (13.10.), zusätzlich zur Sperre in app.js */
 #hub #ml-prep-inner { overscroll-behavior:contain; }
