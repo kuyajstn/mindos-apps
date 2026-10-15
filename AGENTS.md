@@ -50,6 +50,7 @@ Der Schlüssel (`tr-konf`) gilt für beide, alles andere im Speicher trägt das 
   Verschachteltes verweigert es. Am Hub selbst wirft es: den aktiven Plan stellt nur der Mac um.
   **Schreiblogik geändert? Danach `node werkzeug/schreibtest.mjs`** (schnelle Haken, Funkloch, Mac hat inzwischen
   geändert, Anhängen, alte Einträge ohne id, echter Fehler). Läuft gegen ein nachgebautes GitHub, ohne Netz.
+- **Kein Hover am iPhone (seit 15.10., `apps-v57`):** Safari hält `:hover` nach einem Tipp fest. `app.js` (Abschnitt „Kein Hover am iPhone“) streicht deshalb bei `(hover: none)` alle Hover-Regeln aus allen Stylesheets, sobald ein `<style>` dazukommt (MutationObserver, `queueMicrotask`; `requestAnimationFrame` lief im Hintergrund-Tab nicht). Gemischte Selektorlisten behalten ihre übrigen Teile (`:focus-visible`). Gilt für jede App ohne Zutun des Hubs. Prüfen am Mac mit `?ohnehover` im Testserver, danach muss die Zahl der Regeln mit `:hover` 0 sein.
 - **Neuaufbau nach dem Schreiben wartet auf den Dialog (seit 11.10.):** `neuStarten` baut erst neu auf, wenn `APP.wartet()`
   nein sagt (Küche: `#ml-prep-modal` offen), höchstens nach 1,6 s. Vorher riss der Neuaufbau den Dialog nach 60 ms weg,
   die Meldung „… eingetragen“ war nie zu sehen. Eine App ohne `wartet` baut wie bisher nach 60 ms neu auf.
