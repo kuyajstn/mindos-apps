@@ -110,6 +110,15 @@ Der Schlüssel (`tr-konf`) gilt für beide, alles andere im Speicher trägt das 
 - Ausgeliefert über GitHub Pages (`kuyajstn/mindos-apps`, bis 09.10. `kuyajstn/Training`; öffentlich — der Code enthält keine Daten
   und keinen Schlüssel; der Schlüssel liegt nur im Browser des Handys).
 
+## Küche: Reiter Profil (15.10., `apps-v56`)
+
+Vierter Reiter, die Leiste unten hat seitdem vier Spalten (`kitchen/mobil.css`). Geladen werden dafür zusätzlich
+`Ernährungsziele.md`, `Körperdaten.md`, `Körperanalyse Seca.md` und die Ordner `Training Logs/` (Training des Tages im
+Kalorienziel) und `Ernährung/Nachkochen/` (Videos, die App legt dort neue an). Fehlt ein Ordner auf GitHub, liefert `gh` null,
+die Liste bleibt leer. **Kopfzeile messen** (`app.js`, `--kopf-rest`): Seit es zwei `.kt-top` gibt (Tagebuch, Profil), wird
+die **sichtbare** gemessen und auch auf `style`-Änderungen gehört; vorher maß die App die ausgeblendete (Höhe 0), und der
+Inhalt rutschte im Profil unter die Kopfzeile. Hub-Seite: `MindOS/02 Life OS/1. Agent — Life OS.md`.
+
 ## Küche: Stand (09.10.)
 
 Viermal so groß wie der Training Hub (324 KB) und mit Schreibwegen, die die App heute verweigert:

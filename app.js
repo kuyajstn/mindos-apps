@@ -1089,13 +1089,15 @@ window.addEventListener('pageshow', e => { if (e.persisted) nachbauen(); });
 // der Inhalt darunter braucht ihren Platz frei. Gemessen statt geschätzt, weil sie je Ansicht anders hoch ist.
 (() => {
   let kopf = null, geplant = false;
-  const messen = () => { geplant = false; const k = document.querySelector('#hub .tr-top, #hub .kt-top, #hub .ht-handy .ht-kopf');
+  const messen = () => { geplant = false; // Die sichtbare: Seit dem Reiter Profil (15.10.) hat die Küche zwei Kopfzeilen, die erste im DOM kann ausgeblendet sein
+    // (Höhe 0, der Inhalt rutschte unter die Kopfzeile). Ein Reiterwechsel ändert nur style, deshalb auch Attribute beobachten.
+    const k = [...document.querySelectorAll('#hub .tr-top, #hub .kt-top, #hub .ht-handy .ht-kopf')].find(x => x.getClientRects().length) || null;
     if (k !== kopf) { kopf && ro.unobserve(kopf); kopf = k; k && ro.observe(k); }
     // Nur die Höhe unterhalb des oberen Polsters: Das Polster enthält den Rand der Statusleiste, den das CSS selbst
     // dazurechnet. So stimmt der Abstand auch, wenn Safari den Rand erst nach der Messung liefert (iOS 26, 13.10.).
     if (k) document.documentElement.style.setProperty('--kopf-rest', `${k.offsetHeight - parseFloat(getComputedStyle(k).paddingTop)}px`); };
   const ro = new ResizeObserver(() => messen());
-  new MutationObserver(() => { if (!geplant) { geplant = true; requestAnimationFrame(messen); } }).observe(hubEl, { childList:true, subtree:true });
+  new MutationObserver(() => { if (!geplant) { geplant = true; requestAnimationFrame(messen); } }).observe(hubEl, { childList:true, subtree:true, attributes:true, attributeFilter:['style'] });
 })();
 
 // Nur im Testmodus: Ansicht und Klick per Adresse, für Bildschirmfotos ohne Schreiben.
