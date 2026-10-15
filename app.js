@@ -658,9 +658,16 @@ function kochlaufOeffnen(pfad, text, fm, bild, zu) {
     const wahl = L ? L.wahl : r.wahl, mengen = L ? L.mengen : r.mengen;
     let inhalt = laufBild(r, bild, wahl, ik) + laufMakros(r.summe(wahl, mengen)) + videoKnoepfe(fm.video);
     if (phase === 'lesen') {
-      const t = kochteile(text);
+      const t = kochteile(text) || { koch: text.replace(/^---\n[\s\S]*?\n---\n?/, ''), rest: '' };
+      // Rezept-Blatt (15.10.): oben Favorit · Entfernen, darunter groß Eintragen und Kochen. Kochen nur bei Rezepten
+      // mit Zubereitung, nie bei Fertig. Was die Knöpfe tun, macht der Hub (window.__kh), die App zeichnet nur.
+      const b = window.__kh.blatt?.(pfad);
+      const kochbar = !b || (!b.fertig && /🔥|zubereitung/i.test(t.koch));
       inhalt += markdown(t.koch) + (t.rest ? `<details class="le-mehr"><summary>Werte und Notizen</summary>${markdown(t.rest)}</details>` : '')
-        + '<div class="lf"><button class="kh-dlg-btn kh-prim ep-cta is-voll" data-los>Kochen starten</button></div>';
+        + (!b ? '<div class="lf"><button class="kh-dlg-btn kh-prim ep-cta is-voll" data-los>Kochen starten</button></div>'
+          : `<div class="lf le-fuss"><div class="kk-fz"><button class="kk-zweit${b.favorit ? ' is-on' : ''}" data-fav>${(b.favorit ? ik.sternAn : ik.sternAus) || ''}Favorit</button>`
+            + `<button class="kk-zweit" data-weg>${b.archiviert ? (ik.archiv || '') + 'Zurückholen' : (ik.weg || '') + 'Entfernen'}</button></div>`
+            + `<div class="kk-fz">${kochbar ? '<button class="kk-zweit gross" data-ein>Eintragen</button><button class="kk-gross" data-los>Kochen</button>' : '<button class="kk-gross" data-ein>Eintragen</button>'}</div></div>`);
     } else if (phase === 'waehlen') {
       inhalt += r.gruppen.map((g, gi) => {
         const auf = L.offen === gi || (L.offen == null && gi === 0 && !L.wahl.some(Boolean));
@@ -720,7 +727,20 @@ function kochlaufOeffnen(pfad, text, fm, bild, zu) {
   const schliessen = () => { if (L && L.fertig) localStorage.removeItem(laufKey(pfad)); zu(); };
   el.onclick = e => {
     if (e.target === el) return schliessen();
-    const t = e.target.closest('[data-los],[data-weiter],[data-zurueck],[data-reihe],[data-g],[data-m],[data-port],[data-eintragen],[data-ablegen],li[data-n]'); if (!t) return;
+    const t = e.target.closest('[data-los],[data-weiter],[data-zurueck],[data-reihe],[data-g],[data-m],[data-port],[data-eintragen],[data-ablegen],[data-fav],[data-weg],[data-ein],li[data-n]'); if (!t) return;
+    // Fuß des Rezept-Blatts (15.10.)
+    if (t.dataset.fav != null) {
+      if (t.dataset.busy) return; t.dataset.busy = '1';
+      const an = !t.classList.contains('is-on'), zeig = x => { t.classList.toggle('is-on', x); t.innerHTML = (x ? ik.sternAn : ik.sternAus) + 'Favorit'; };
+      zeig(an);
+      return window.__kh.favorit(pfad).catch(err => { console.error('Favorit:', err); zeig(!an); }).finally(() => { delete t.dataset.busy; });
+    }
+    if (t.dataset.weg != null) {
+      if (!window.__kh.blatt?.(pfad)?.archiviert) { zu(); return window.__kh.entfernen(pfad); }
+      if (t.dataset.busy) return; t.dataset.busy = '1';
+      return window.__kh.zurueckholen(pfad).then(() => { t.innerHTML = (ik.weg || '') + 'Entfernen'; }).catch(err => console.error('Zurückholen:', err)).finally(() => { delete t.dataset.busy; });
+    }
+    if (t.dataset.ein != null) { zu(); return window.__kh.eintragenBlatt(pfad); }
     if (t.dataset.port != null) { const n = (L.portionen || 1) + Number(t.dataset.port); if (n >= 1 && n <= 12) L.portionen = n; speichern(); return zeichnen(); }
     if (t.dataset.zurueck != null) {
       if (phase === 'kochen') { phase = L.phase = 'waehlen'; speichern(); el.querySelector('.le-inhalt').scrollTop = 0; return zeichnen(); }
@@ -781,7 +801,8 @@ async function leserOeffnen(pfad) {
   document.body.appendChild(el); document.body.classList.add('le-offen');
   const zu = () => { el.remove(); document.body.classList.remove('le-offen'); wachSperre?.release().catch(() => {}); wachSperre = null; };
   // Rezepte mit Zutaten oder Zubereitung laufen als Kochlauf, sobald der Hub seine Rechnung anbietet.
-  if (teile && window.__kh?.rezept(pfad)) kochlaufOeffnen(pfad, d.text, fm, titelbild, zu);
+  // Seit 15.10. jedes Rezept (auch ohne passende Überschriften): Der Leser ist das Rezept-Blatt mit Favorit, Entfernen, Eintragen.
+  if (fm.type === 'recipe' && window.__kh?.rezept(pfad)) kochlaufOeffnen(pfad, d.text, fm, titelbild, zu);
   else {
     el.querySelector('.le-zu').onclick = zu;
     el.addEventListener('click', e => { if (e.target === el) zu(); const li = e.target.closest('.le-hak'); if (li) li.classList.toggle('an'); });
