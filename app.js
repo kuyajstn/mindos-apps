@@ -665,9 +665,10 @@ function kochlaufOeffnen(pfad, text, fm, bild, zu) {
       const kochbar = !b || (!b.fertig && /🔥|zubereitung/i.test(t.koch));
       inhalt += markdown(t.koch) + (t.rest ? `<details class="le-mehr"><summary>Werte und Notizen</summary>${markdown(t.rest)}</details>` : '')
         + (!b ? '<div class="lf"><button class="kh-dlg-btn kh-prim ep-cta is-voll" data-los>Kochen starten</button></div>'
-          : `<div class="lf le-fuss"><div class="kk-fz"><button class="kk-zweit${b.favorit ? ' is-on' : ''}" data-fav>${(b.favorit ? ik.sternAn : ik.sternAus) || ''}Favorit</button>`
-            + `<button class="kk-zweit" data-weg>${b.archiviert ? (ik.archiv || '') + 'Zurückholen' : (ik.weg || '') + 'Entfernen'}</button></div>`
-            + `<div class="kk-fz">${kochbar ? '<button class="kk-zweit gross" data-ein>Eintragen</button><button class="kk-gross" data-los>Kochen</button>' : '<button class="kk-gross" data-ein>Eintragen</button>'}</div></div>`);
+          // Eine Reihe, eine Höhe (15.10. abends): Favorit und Entfernen als Symbol, dann die Wege mit Wort.
+          : `<div class="lf le-fuss"><div class="kk-fz"><button class="kk-ik${b.favorit ? ' is-on' : ''}" data-fav aria-label="Favorit">${(b.favorit ? ik.sternAn : ik.sternAus) || '☆'}</button>`
+            + `<button class="kk-ik" data-weg aria-label="${b.archiviert ? 'Zurückholen' : 'Entfernen'}">${(b.archiviert ? ik.archiv : ik.weg) || '✕'}</button>`
+            + `${kochbar ? '<button class="kk-zweit" data-ein>Eintragen</button><button class="kk-gross" data-los>Kochen</button>' : '<button class="kk-gross" data-ein>Eintragen</button>'}</div></div>`);
     } else if (phase === 'waehlen') {
       inhalt += r.gruppen.map((g, gi) => {
         const auf = L.offen === gi || (L.offen == null && gi === 0 && !L.wahl.some(Boolean));
@@ -731,14 +732,14 @@ function kochlaufOeffnen(pfad, text, fm, bild, zu) {
     // Fuß des Rezept-Blatts (15.10.)
     if (t.dataset.fav != null) {
       if (t.dataset.busy) return; t.dataset.busy = '1';
-      const an = !t.classList.contains('is-on'), zeig = x => { t.classList.toggle('is-on', x); t.innerHTML = (x ? ik.sternAn : ik.sternAus) + 'Favorit'; };
+      const an = !t.classList.contains('is-on'), zeig = x => { t.classList.toggle('is-on', x); t.innerHTML = x ? ik.sternAn : ik.sternAus; };
       zeig(an);
       return window.__kh.favorit(pfad).catch(err => { console.error('Favorit:', err); zeig(!an); }).finally(() => { delete t.dataset.busy; });
     }
     if (t.dataset.weg != null) {
       if (!window.__kh.blatt?.(pfad)?.archiviert) { zu(); return window.__kh.entfernen(pfad); }
       if (t.dataset.busy) return; t.dataset.busy = '1';
-      return window.__kh.zurueckholen(pfad).then(() => { t.innerHTML = (ik.weg || '') + 'Entfernen'; }).catch(err => console.error('Zurückholen:', err)).finally(() => { delete t.dataset.busy; });
+      return window.__kh.zurueckholen(pfad).then(() => { t.innerHTML = ik.weg || '✕'; t.setAttribute('aria-label', 'Entfernen'); }).catch(err => console.error('Zurückholen:', err)).finally(() => { delete t.dataset.busy; });
     }
     if (t.dataset.ein != null) { zu(); return window.__kh.eintragenBlatt(pfad); }
     if (t.dataset.port != null) { const n = (L.portionen || 1) + Number(t.dataset.port); if (n >= 1 && n <= 12) L.portionen = n; speichern(); return zeichnen(); }

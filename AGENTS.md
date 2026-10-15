@@ -143,7 +143,7 @@ Eintrag, der auf Werte wartet (Kitchen Hub, Stufe 3). Dafür hat `shim()` `app.i
 Warteschlange, vor dem Eintrag, der darauf zeigt. Scheitert es, ist nur das Foto weg, nicht der Eintrag.
 Entschieden (Justin, 09.10.): **Am Handy je Hub eine eigene App** mit eigenem Symbol, kein Umschalter. Der Nachbau von Obsidian (`shim()`) wird trotzdem geteilt, nicht kopiert.
 
-## Küche: Rezept-Blatt im Leser (15.10., `apps-v59`)
+## Küche: Rezept-Blatt im Leser (15.10., `apps-v60`)
 
 Seit dem Umbau der Küche (`MindOS/05 Stack/Context/Decisions/Küche in Reihen nach Sorte.md`) tragen Karten keine Knöpfe mehr, ein Tipp öffnet den Leser.
 **Jedes Rezept (`type: recipe`) geht in `kochlaufOeffnen`**, auch ohne passende Überschriften (dann steht der ganze Text oben). Die Lesen-Phase
@@ -151,3 +151,5 @@ hat einen Fuß aus Knöpfen des Hubs (`.kk-zweit`, `.kk-gross`): Favorit · Entf
 eine Zubereitung hat und das Rezept nicht `kind: fertig` ist. Was die Knöpfe tun, macht der Hub über `window.__kh`: `blatt(path)`
 (Favorit, archiviert, fertig), `favorit`, `zurueckholen`, `entfernen` (Rückfrage im Hub-Blatt), `eintragenBlatt` (‹ dort öffnet den Leser
 wieder). Fehlt `__kh.blatt` (alter Hub), zeigt der Leser wie vorher „Kochen starten“. In `kitchen/mobil.css` dazu der Fuß und die Reihen bis an den Rand.
+
+Seit `apps-v60` (15.10. abends) steht der Fuß in **einer** Reihe mit einer Höhe: Favorit und Entfernen als Symbol (`.kk-ik`), dann Eintragen und Kochen.

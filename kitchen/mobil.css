@@ -122,7 +122,7 @@ html.tastatur #hub .kh #ml-prep-inner { height:calc(var(--vv-h) - 12px); max-hei
 #hub #ml-prep-inner { overscroll-behavior:contain; }
 
 /* Rezept-Blatt (15.10.): Fuß mit zwei Reihen, Favorit · Entfernen über Eintragen · Kochen (Knöpfe aus dem Hub, .kk-zweit/.kk-gross) */
-#leser .lauf .lf.le-fuss { display:flex; flex-direction:column; gap:8px; }
+#leser .lauf .lf.le-fuss .kk-fz { gap:8px; }
 /* Küche (15.10.): Reihen laufen bis an den Bildschirmrand, die erste Karte bleibt bündig mit der Überschrift */
 #hub .kk-reihe { margin:0 -14px; padding:0 14px 4px; scroll-padding:0 14px; }
 #hub .kk-reihe > .kk-karte { flex-basis:150px; }
